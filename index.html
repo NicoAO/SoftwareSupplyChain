@@ -9,21 +9,21 @@
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   
-  <!-- React and ReactDOM - DEVELOPMENT BUILDS for debugging -->
-  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
-  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <!-- React and ReactDOM -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   
-  <!-- Recharts for data visualization -->
-  <script src="https://cdn.jsdelivr.net/npm/recharts@2.5.0/dist/Recharts.js"></script>
+  <!-- Try Recharts from cdnjs - more reliable -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/recharts/2.5.0/Recharts.js"></script>
   
   <!-- Babel Standalone for JSX compilation -->
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   
-  <!-- Debug Recharts loading -->
+  <!-- Debug script loading -->
   <script>
+    console.log('Script tags loaded. Checking libraries...');
     window.addEventListener('load', function() {
-      console.log('Recharts object:', window.Recharts);
-      console.log('Recharts keys:', Object.keys(window.Recharts || {}));
+      console.log('Page loaded. React:', typeof React, 'ReactDOM:', typeof ReactDOM, 'Recharts:', typeof Recharts);
     });
   </script>
   
@@ -114,42 +114,36 @@
   </div>
 
   <script type="text/babel">
-    // Debug: Check what's available
-    console.log('React available:', typeof React !== 'undefined');
-    console.log('ReactDOM available:', typeof ReactDOM !== 'undefined');
-    console.log('Recharts available:', typeof Recharts !== 'undefined');
-    console.log('Recharts contents:', Recharts);
-    
-    if (typeof React === 'undefined' || typeof Recharts === 'undefined') {
-      console.error('Required libraries not loaded. Please refresh the page.');
-      document.getElementById('root').innerHTML = '<div style="padding: 40px; text-align: center;"><h1>Loading Error</h1><p>Required libraries did not load. Please refresh the page.</p></div>';
-    }
-    
     const { useState, useEffect, useMemo } = React;
     
-    // Access Recharts components - try both methods
-    console.log('Trying to access Recharts.LineChart:', Recharts.LineChart);
-    console.log('Trying to access Recharts.BarChart:', Recharts.BarChart);
+    // These will be set once Recharts loads
+    let LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend;
+    let ResponsiveContainer, PieChart, Pie, Cell, Area, AreaChart;
     
-    const LineChart = Recharts.LineChart;
-    const Line = Recharts.Line;
-    const BarChart = Recharts.BarChart;
-    const Bar = Recharts.Bar;
-    const XAxis = Recharts.XAxis;
-    const YAxis = Recharts.YAxis;
-    const CartesianGrid = Recharts.CartesianGrid;
-    const Tooltip = Recharts.Tooltip;
-    const Legend = Recharts.Legend;
-    const ResponsiveContainer = Recharts.ResponsiveContainer;
-    const PieChart = Recharts.PieChart;
-    const Pie = Recharts.Pie;
-    const Cell = Recharts.Cell;
-    const Area = Recharts.Area;
-    const AreaChart = Recharts.AreaChart;
-    
-    // Log if any are undefined
-    if (!LineChart) console.error('LineChart is undefined!');
-    if (!BarChart) console.error('BarChart is undefined!');
+    // Function to initialize Recharts components
+    function initRecharts() {
+      if (typeof Recharts === 'undefined' || !Recharts.LineChart) {
+        return false;
+      }
+      
+      LineChart = Recharts.LineChart;
+      Line = Recharts.Line;
+      BarChart = Recharts.BarChart;
+      Bar = Recharts.Bar;
+      XAxis = Recharts.XAxis;
+      YAxis = Recharts.YAxis;
+      CartesianGrid = Recharts.CartesianGrid;
+      Tooltip = Recharts.Tooltip;
+      Legend = Recharts.Legend;
+      ResponsiveContainer = Recharts.ResponsiveContainer;
+      PieChart = Recharts.PieChart;
+      Pie = Recharts.Pie;
+      Cell = Recharts.Cell;
+      Area = Recharts.Area;
+      AreaChart = Recharts.AreaChart;
+      
+      return true;
+    }
 
 
 
@@ -1636,14 +1630,42 @@ const CodeLockerROIDashboard = () => {
 };
 
 
-
     // Wait for all dependencies to load before rendering
+    let initAttempts = 0;
+    const MAX_ATTEMPTS = 50; // 5 seconds total
+    
     function initApp() {
-      if (typeof React === 'undefined' || typeof ReactDOM === 'undefined' || typeof Recharts === 'undefined') {
-        console.log('Waiting for dependencies to load...');
-        setTimeout(initApp, 100);
+      initAttempts++;
+      
+      if (typeof React === 'undefined' || typeof ReactDOM === 'undefined') {
+        if (initAttempts < MAX_ATTEMPTS) {
+          setTimeout(initApp, 100);
+        } else {
+          document.getElementById('root').innerHTML = '<div style="padding: 40px; text-align: center; font-family: sans-serif;"><h1 style="color: #dc2626;">Loading Error</h1><p>React libraries failed to load. Please check your internet connection and refresh the page.</p></div>';
+        }
         return;
       }
+      
+      if (typeof Recharts === 'undefined') {
+        console.log(`Waiting for Recharts to load... (attempt ${initAttempts}/${MAX_ATTEMPTS})`);
+        if (initAttempts < MAX_ATTEMPTS) {
+          setTimeout(initApp, 100);
+        } else {
+          document.getElementById('root').innerHTML = '<div style="padding: 40px; text-align: center; font-family: sans-serif;"><h1 style="color: #dc2626;">Chart Library Error</h1><p>The charting library (Recharts) failed to load. This may be due to ad blockers or network issues.</p><p style="margin-top: 20px;"><strong>Try:</strong></p><ul style="list-style: none; padding: 0;"><li>• Disable ad blockers</li><li>• Check your firewall settings</li><li>• Refresh the page</li></ul></div>';
+        }
+        return;
+      }
+      
+      // Initialize Recharts components
+      if (!initRecharts()) {
+        console.log('Recharts components not ready, retrying...');
+        if (initAttempts < MAX_ATTEMPTS) {
+          setTimeout(initApp, 100);
+        }
+        return;
+      }
+      
+      console.log('All dependencies loaded successfully, rendering app...');
       
       // Render the app
       const root = ReactDOM.createRoot(document.getElementById('root'));
