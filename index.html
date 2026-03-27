@@ -14,10 +14,15 @@
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   
   <!-- Recharts for data visualization -->
-  <script src="https://unpkg.com/recharts@2.5.0/dist/Recharts.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/recharts@2.5.0/dist/Recharts.js"></script>
   
   <!-- Babel Standalone for JSX compilation -->
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  
+  <!-- Ensure Recharts is available globally -->
+  <script>
+    window.Recharts = window.Recharts || {};
+  </script>
   
   <!-- Professional Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -106,6 +111,11 @@
   </div>
 
   <script type="text/babel">
+    // Ensure dependencies are available
+    if (typeof React === 'undefined' || typeof Recharts === 'undefined') {
+      console.error('Required libraries not loaded. Please refresh the page.');
+    }
+    
     const { useState, useEffect, useMemo } = React;
     const { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, Area, AreaChart } = Recharts;
 
@@ -1595,10 +1605,25 @@ const CodeLockerROIDashboard = () => {
 
 
 
-
-    // Render the app
-    const root = ReactDOM.createRoot(document.getElementById('root'));
-    root.render(<CodeLockerROIDashboard />);
+    // Wait for all dependencies to load before rendering
+    function initApp() {
+      if (typeof React === 'undefined' || typeof ReactDOM === 'undefined' || typeof Recharts === 'undefined') {
+        console.log('Waiting for dependencies to load...');
+        setTimeout(initApp, 100);
+        return;
+      }
+      
+      // Render the app
+      const root = ReactDOM.createRoot(document.getElementById('root'));
+      root.render(<CodeLockerROIDashboard />);
+    }
+    
+    // Start when DOM is ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initApp);
+    } else {
+      initApp();
+    }
   </script>
 </body>
 </html>
