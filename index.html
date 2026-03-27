@@ -117,7 +117,23 @@
     }
     
     const { useState, useEffect, useMemo } = React;
-    const { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, Area, AreaChart } = Recharts;
+    
+    // Access Recharts components directly instead of destructuring
+    const LineChart = Recharts.LineChart;
+    const Line = Recharts.Line;
+    const BarChart = Recharts.BarChart;
+    const Bar = Recharts.Bar;
+    const XAxis = Recharts.XAxis;
+    const YAxis = Recharts.YAxis;
+    const CartesianGrid = Recharts.CartesianGrid;
+    const Tooltip = Recharts.Tooltip;
+    const Legend = Recharts.Legend;
+    const ResponsiveContainer = Recharts.ResponsiveContainer;
+    const PieChart = Recharts.PieChart;
+    const Pie = Recharts.Pie;
+    const Cell = Recharts.Cell;
+    const Area = Recharts.Area;
+    const AreaChart = Recharts.AreaChart;
 
 
 
