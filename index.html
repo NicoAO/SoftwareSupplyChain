@@ -5,14 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CodeLocker ROI Dashboard</title>
   
-  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  
-  <!-- React and ReactDOM -->
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-  
-  <!-- Babel -->
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -25,6 +20,14 @@
       border-radius: 4px;
       transition: all 0.3s ease;
     }
+    .expandable-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease-out;
+    }
+    .expandable-content.open {
+      max-height: 2000px;
+    }
   </style>
 </head>
 <body>
@@ -33,7 +36,6 @@
   <script type="text/babel">
     const { useState } = React;
 
-    // Calculations
     const BREACH_COSTS = {
       baseline: { global: 4400000, us: 10220000, europe: 5200000, asiaPacific: 4100000 },
       industryMultipliers: { fintech: 1.8, healthcare: 1.6, retail: 1.0, manufacturing: 0.7, technology: 1.3, other: 1.0 },
@@ -97,36 +99,75 @@
       return developers * tier.pricePerUser;
     };
 
-    const calculateROI = (profile, years = 3) => {
+    const calculateROI = (profile, years, yearlyGrowthRates) => {
       const breachCost = calculateBreachCost(profile);
       const baselineRisk = 0.15;
       const withCodeLockerRisk = 0.03;
-      const expectedLossWithout = breachCost * baselineRisk * years;
-      const expectedLossWith = breachCost * withCodeLockerRisk * years;
-      const growthRate = profile.growthRate || 1.5;
+      
       let totalInvestment = CODELOCKER_PRICING.implementationCost;
       let currentDevs = profile.developers;
       const yearlyData = [];
+      let expectedLossWithout = 0;
+      let expectedLossWith = 0;
       
       for (let year = 1; year <= years; year++) {
         const annualCost = calculateCodeLockerCost(currentDevs);
         totalInvestment += annualCost;
         const yearBreachCost = calculateBreachCost({...profile, developers: currentDevs});
+        const yearLossWithout = yearBreachCost * baselineRisk;
+        const yearLossWith = yearBreachCost * withCodeLockerRisk;
+        
+        expectedLossWithout += yearLossWithout;
+        expectedLossWith += yearLossWith;
+        
         yearlyData.push({
           year,
           developers: currentDevs,
           investment: annualCost,
-          riskWithout: yearBreachCost * baselineRisk,
-          riskWith: yearBreachCost * withCodeLockerRisk,
-          savings: (yearBreachCost * baselineRisk) - (yearBreachCost * withCodeLockerRisk) - annualCost
+          riskWithout: yearLossWithout,
+          riskWith: yearLossWith,
+          savings: yearLossWithout - yearLossWith - annualCost
         });
-        currentDevs = Math.floor(currentDevs * growthRate);
+        
+        if (year < years) {
+          const growthRate = yearlyGrowthRates && yearlyGrowthRates[year - 1] ? 
+            (1 + yearlyGrowthRates[year - 1] / 100) : profile.growthRate;
+          currentDevs = Math.floor(currentDevs * growthRate);
+        }
       }
       
       const netBenefit = (expectedLossWithout - expectedLossWith) - totalInvestment;
       const roiPercent = (netBenefit / totalInvestment) * 100;
       
       return { breachCost, expectedLossWithout, expectedLossWith, totalInvestment, netBenefit, roiPercent, yearlyData };
+    };
+
+    const ExpandableSection = ({ title, children, defaultOpen = false }) => {
+      const [isOpen, setIsOpen] = useState(defaultOpen);
+      
+      return (
+        <div className="border-2 border-gray-200 rounded-lg mb-4 overflow-hidden">
+          <button
+            onClick={() => setIsOpen(!isOpen)}
+            className="w-full px-6 py-4 bg-gray-50 hover:bg-gray-100 transition-colors flex justify-between items-center"
+          >
+            <span className="font-semibold text-gray-900">{title}</span>
+            <svg
+              className={`w-5 h-5 text-gray-600 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+          <div className={`expandable-content ${isOpen ? 'open' : ''}`}>
+            <div className="px-6 py-4 bg-white">
+              {children}
+            </div>
+          </div>
+        </div>
+      );
     };
 
     const Dashboard = () => {
@@ -140,8 +181,13 @@
         regulations: ['gdpr', 'ccpa'],
         growthRate: 1.5
       });
+      
+      const [useGrowth, setUseGrowth] = useState(true);
+      const [projectionYears, setProjectionYears] = useState(3);
+      const [yearByYearGrowth, setYearByYearGrowth] = useState(false);
+      const [yearlyGrowthRates, setYearlyGrowthRates] = useState([50, 50, 50, 50, 50]);
 
-      const roi = calculateROI(profile, 3);
+      const roi = calculateROI(profile, projectionYears, yearByYearGrowth ? yearlyGrowthRates : null);
 
       const updateProfile = (key, value) => {
         setProfile(prev => ({ ...prev, [key]: value }));
@@ -154,37 +200,55 @@
         }));
       };
 
+      const updateYearlyGrowth = (yearIndex, value) => {
+        setYearlyGrowthRates(prev => {
+          const newRates = [...prev];
+          newRates[yearIndex] = value;
+          return newRates;
+        });
+      };
+
       return (
         <div className="min-h-screen bg-gray-50">
           <header className="bg-white border-b-2 border-gray-200 sticky top-0 z-50">
             <div className="max-w-7xl mx-auto px-6 py-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
-                  <a href="https://codelocker.zevainc.com/" className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center text-white font-bold">CL</div>
+                  <a href="https://codelocker.zevainc.com/" className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
+                    <svg className="w-12 h-12" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <rect width="48" height="48" rx="8" fill="url(#gradient)"/>
+                      <path d="M24 14V18M18 24H14M34 24H30M24 30V34" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
+                      <rect x="19" y="19" width="10" height="10" rx="2" stroke="white" strokeWidth="2.5"/>
+                      <path d="M24 21V23M24 25V27" stroke="white" strokeWidth="2" strokeLinecap="round"/>
+                      <defs>
+                        <linearGradient id="gradient" x1="0" y1="0" x2="48" y2="48" gradientUnits="userSpaceOnUse">
+                          <stop stopColor="#2563EB"/>
+                          <stop offset="1" stopColor="#1D4ED8"/>
+                        </linearGradient>
+                      </defs>
+                    </svg>
                     <div>
                       <h1 className="text-2xl font-bold text-gray-900">CodeLocker</h1>
                       <p className="text-xs text-gray-500">by Zeva Inc.</p>
                     </div>
                   </a>
                 </div>
-                <a href="https://codelocker.zevainc.com/" className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700">Get Started</a>
+                <a href="https://codelocker.zevainc.com/" className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">Get Started</a>
               </div>
             </div>
           </header>
 
           <nav className="bg-white border-b-2 border-gray-200">
             <div className="max-w-7xl mx-auto px-6 flex space-x-8">
-              <button onClick={() => setActiveTab('problem')} className={`py-4 px-2 border-b-4 font-medium text-sm ${activeTab === 'problem' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-600 hover:text-gray-900'}`}>The Problem</button>
-              <button onClick={() => setActiveTab('calculator')} className={`py-4 px-2 border-b-4 font-medium text-sm ${activeTab === 'calculator' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-600 hover:text-gray-900'}`}>ROI Calculator</button>
+              <button onClick={() => setActiveTab('problem')} className={`py-4 px-2 border-b-4 font-medium text-sm transition-colors ${activeTab === 'problem' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-600 hover:text-gray-900'}`}>The Problem</button>
+              <button onClick={() => setActiveTab('calculator')} className={`py-4 px-2 border-b-4 font-medium text-sm transition-colors ${activeTab === 'calculator' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-600 hover:text-gray-900'}`}>ROI Calculator</button>
             </div>
           </nav>
 
           <main className="max-w-7xl mx-auto px-6 py-12">
             {activeTab === 'problem' && (
               <div>
-                <h1 className="text-5xl font-bold text-gray-900 mb-6 text-center">The $4.91 Million Question</h1>
-                <p className="text-2xl text-gray-600 mb-8 text-center">Is Your Software Supply Chain Secure?</p>
+                <h1 className="text-5xl font-bold text-gray-900 mb-6 text-center">Is Your Software Supply Chain Secure?</h1>
                 <div className="bg-gradient-to-r from-red-50 to-orange-50 border-2 border-red-200 rounded-lg p-8 max-w-3xl mx-auto mb-12">
                   <div className="text-sm font-semibold text-red-600 mb-2">AVERAGE SUPPLY CHAIN BREACH COST</div>
                   <div className="text-6xl font-bold text-red-700">$4.91M</div>
@@ -209,8 +273,143 @@
                   </div>
                 </div>
 
+                <div className="max-w-4xl mx-auto mb-12">
+                  <h2 className="text-3xl font-bold text-gray-900 mb-6">Understanding the Risk</h2>
+                  
+                  <ExpandableSection title="What is a Supply Chain Attack?" defaultOpen={true}>
+                    <p className="text-gray-700 mb-4">
+                      A supply chain attack occurs when attackers compromise a trusted third-party software component, library, or service that organizations depend on. Instead of attacking your systems directly, hackers inject malicious code into widely-used dependencies that automatically get distributed to thousands of downstream users.
+                    </p>
+                    <p className="text-gray-700">
+                      This attack vector is particularly dangerous because it exploits the trust relationships between software vendors and their customers. When you download a popular npm package, Python library, or software update, you assume it's safe. Supply chain attackers break that assumption.
+                    </p>
+                  </ExpandableSection>
+
+                  <ExpandableSection title="Case Study: The SolarWinds Attack (2020)">
+                    <div className="space-y-4">
+                      <div>
+                        <h4 className="font-bold text-gray-900 mb-2">The Breach</h4>
+                        <p className="text-gray-700">
+                          In December 2020, cybersecurity firm FireEye discovered one of the most sophisticated supply chain attacks in history. Russian state-sponsored hackers had compromised SolarWinds' Orion platform—network monitoring software used by 18,000+ organizations including Fortune 500 companies and U.S. government agencies.
+                        </p>
+                      </div>
+                      
+                      <div>
+                        <h4 className="font-bold text-gray-900 mb-2">How It Worked</h4>
+                        <p className="text-gray-700 mb-2">The attackers inserted malicious code (dubbed "SUNBURST") into SolarWinds' software build process. When SolarWinds released a routine software update, that poisoned update was digitally signed with SolarWinds' legitimate certificate and automatically pushed to customers worldwide.</p>
+                        <ul className="list-disc list-inside text-gray-700 space-y-1">
+                          <li>March 2020: Hackers gain access to SolarWinds build environment</li>
+                          <li>May-June 2020: Malicious code inserted into Orion updates</li>
+                          <li>Months of undetected access to victim networks</li>
+                          <li>December 2020: Attack discovered and disclosed</li>
+                        </ul>
+                      </div>
+
+                      <div>
+                        <h4 className="font-bold text-gray-900 mb-2">The Impact</h4>
+                        <div className="bg-red-50 border border-red-200 rounded p-4">
+                          <ul className="text-gray-700 space-y-2">
+                            <li className="flex items-start">
+                              <span className="text-red-600 mr-2">•</span>
+                              <span>18,000+ organizations received the compromised update</span>
+                            </li>
+                            <li className="flex items-start">
+                              <span className="text-red-600 mr-2">•</span>
+                              <span>100+ companies and 9 U.S. federal agencies fully breached</span>
+                            </li>
+                            <li className="flex items-start">
+                              <span className="text-red-600 mr-2">•</span>
+                              <span>Estimated economic damage in the billions</span>
+                            </li>
+                            <li className="flex items-start">
+                              <span className="text-red-600 mr-2">•</span>
+                              <span>Access to sensitive government and corporate data for months</span>
+                            </li>
+                            <li className="flex items-start">
+                              <span className="text-red-600 mr-2">•</span>
+                              <span>Complete remediation took over a year for many victims</span>
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+
+                      <div>
+                        <h4 className="font-bold text-gray-900 mb-2">Why It Matters for You</h4>
+                        <p className="text-gray-700">
+                          The SolarWinds attack demonstrated that traditional security measures—firewalls, antivirus, intrusion detection—are ineffective against supply chain compromises. The malicious code came from a trusted source, signed with valid certificates, and behaved like legitimate software. Without code signing verification and supply chain integrity controls, there's no way to detect these attacks before deployment.
+                        </p>
+                      </div>
+
+                      <div className="bg-blue-50 border border-blue-200 rounded p-4">
+                        <h4 className="font-bold text-blue-900 mb-2">How CodeLocker Prevents This</h4>
+                        <ul className="text-gray-700 space-y-2">
+                          <li className="flex items-start">
+                            <span className="text-blue-600 mr-2">✓</span>
+                            <span><strong>Commit-level code signing:</strong> Every code change is cryptographically signed by authorized developers</span>
+                          </li>
+                          <li className="flex items-start">
+                            <span className="text-blue-600 mr-2">✓</span>
+                            <span><strong>Binary verification:</strong> Only code signed by your organization can execute in your environment</span>
+                          </li>
+                          <li className="flex items-start">
+                            <span className="text-blue-600 mr-2">✓</span>
+                            <span><strong>SBOM tracking:</strong> Complete visibility into all dependencies and third-party components</span>
+                          </li>
+                          <li className="flex items-start">
+                            <span className="text-blue-600 mr-2">✓</span>
+                            <span><strong>Automated CI/CD integration:</strong> Security verification happens at build time, not after deployment</span>
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+                  </ExpandableSection>
+
+                  <ExpandableSection title="Recent Supply Chain Attacks (2024-2025)">
+                    <div className="space-y-4">
+                      <div>
+                        <h4 className="font-bold text-gray-900">XZ Utils Backdoor (April 2024)</h4>
+                        <p className="text-gray-700">A backdoor was discovered in XZ Utils, a compression library used across Linux distributions. The attack was the result of a multi-year social engineering campaign where attackers gained maintainer access to inject malicious code. This highlights how patient attackers can be when targeting open-source supply chains.</p>
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-gray-900">3CX VoIP Attack (2023-2024)</h4>
+                        <p className="text-gray-700">Hackers compromised 3CX's VoIP software, affecting 600,000+ organizations globally. The attack propagated through legitimate software updates, similar to SolarWinds. Resolution required complete infrastructure rebuilds for many victims.</p>
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-gray-900">NPM Package Compromises (Ongoing)</h4>
+                        <p className="text-gray-700">Throughout 2024, researchers discovered numerous malicious packages in npm (JavaScript package registry) and PyPI (Python Package Index). Attackers use typosquatting and dependency confusion to inject malware into development pipelines.</p>
+                      </div>
+                    </div>
+                  </ExpandableSection>
+
+                  <ExpandableSection title="Why Traditional Security Fails">
+                    <p className="text-gray-700 mb-4">
+                      Most security tools focus on perimeter defense—keeping attackers out of your network. But supply chain attacks bypass the perimeter entirely by compromising code before it ever reaches your infrastructure.
+                    </p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="bg-red-50 border border-red-200 rounded p-4">
+                        <h4 className="font-bold text-red-900 mb-2">What Doesn't Work</h4>
+                        <ul className="text-gray-700 space-y-1 text-sm">
+                          <li>• Firewalls (code comes from trusted sources)</li>
+                          <li>• Antivirus (malicious code is signed and trusted)</li>
+                          <li>• Network monitoring (traffic appears legitimate)</li>
+                          <li>• Penetration testing (vulnerability exists upstream)</li>
+                        </ul>
+                      </div>
+                      <div className="bg-green-50 border border-green-200 rounded p-4">
+                        <h4 className="font-bold text-green-900 mb-2">What Does Work</h4>
+                        <ul className="text-gray-700 space-y-1 text-sm">
+                          <li>• Code signing and verification</li>
+                          <li>• Software bill of materials (SBOM)</li>
+                          <li>• Zero Trust architecture</li>
+                          <li>• Supply chain integrity monitoring</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </ExpandableSection>
+                </div>
+
                 <div className="text-center">
-                  <button onClick={() => setActiveTab('calculator')} className="bg-blue-600 text-white px-8 py-4 rounded-lg font-semibold text-lg hover:bg-blue-700">Calculate Your ROI</button>
+                  <button onClick={() => setActiveTab('calculator')} className="bg-blue-600 text-white px-8 py-4 rounded-lg font-semibold text-lg hover:bg-blue-700 transition-colors">Calculate Your ROI</button>
                 </div>
               </div>
             )}
@@ -224,7 +423,7 @@
                     <div className="space-y-6">
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">Industry</label>
-                        <select value={profile.industry} onChange={(e) => updateProfile('industry', e.target.value)} className="w-full border-2 border-gray-300 rounded-lg px-4 py-2">
+                        <select value={profile.industry} onChange={(e) => updateProfile('industry', e.target.value)} className="w-full border-2 border-gray-300 rounded-lg px-4 py-2 focus:border-blue-500 focus:outline-none">
                           <option value="fintech">FinTech</option>
                           <option value="healthcare">Healthcare</option>
                           <option value="retail">Retail</option>
@@ -235,23 +434,47 @@
                       </div>
 
                       <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">Developers: {profile.developers}</label>
-                        <input type="range" min="10" max="1000" value={profile.developers} onChange={(e) => updateProfile('developers', parseInt(e.target.value))} className="w-full" />
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">Number of Developers</label>
+                        <input 
+                          type="number" 
+                          min="1" 
+                          max="10000" 
+                          value={profile.developers} 
+                          onChange={(e) => updateProfile('developers', parseInt(e.target.value) || 1)} 
+                          className="w-full border-2 border-gray-300 rounded-lg px-4 py-2 mb-2 focus:border-blue-500 focus:outline-none"
+                        />
+                        <input type="range" min="1" max="1000" value={profile.developers} onChange={(e) => updateProfile('developers', parseInt(e.target.value))} className="w-full" />
+                        <div className="flex justify-between text-xs text-gray-500 mt-1">
+                          <span>1</span>
+                          <span>1000+</span>
+                        </div>
                       </div>
 
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">Annual Revenue</label>
-                        <input type="text" value={`$${profile.revenue.toLocaleString()}`} onChange={(e) => updateProfile('revenue', parseInt(e.target.value.replace(/[^0-9]/g, '')) || 0)} className="w-full border-2 border-gray-300 rounded-lg px-4 py-2" />
+                        <input type="text" value={`$${profile.revenue.toLocaleString()}`} onChange={(e) => updateProfile('revenue', parseInt(e.target.value.replace(/[^0-9]/g, '')) || 0)} className="w-full border-2 border-gray-300 rounded-lg px-4 py-2 focus:border-blue-500 focus:outline-none" />
                       </div>
 
                       <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">Customers: {profile.customers.toLocaleString()}</label>
-                        <input type="range" min="100" max="1000000" step="1000" value={profile.customers} onChange={(e) => updateProfile('customers', parseInt(e.target.value))} className="w-full" />
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">Number of Customers</label>
+                        <input 
+                          type="number" 
+                          min="1" 
+                          max="10000000" 
+                          value={profile.customers} 
+                          onChange={(e) => updateProfile('customers', parseInt(e.target.value) || 1)} 
+                          className="w-full border-2 border-gray-300 rounded-lg px-4 py-2 mb-2 focus:border-blue-500 focus:outline-none"
+                        />
+                        <input type="range" min="10" max="1000000" step="10" value={profile.customers} onChange={(e) => updateProfile('customers', parseInt(e.target.value))} className="w-full" />
+                        <div className="flex justify-between text-xs text-gray-500 mt-1">
+                          <span>10</span>
+                          <span>1M+</span>
+                        </div>
                       </div>
 
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">Region</label>
-                        <select value={profile.region} onChange={(e) => updateProfile('region', e.target.value)} className="w-full border-2 border-gray-300 rounded-lg px-4 py-2">
+                        <select value={profile.region} onChange={(e) => updateProfile('region', e.target.value)} className="w-full border-2 border-gray-300 rounded-lg px-4 py-2 focus:border-blue-500 focus:outline-none">
                           <option value="us">United States</option>
                           <option value="europe">Europe</option>
                           <option value="asiaPacific">Asia-Pacific</option>
@@ -271,9 +494,96 @@
                         </div>
                       </div>
 
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">Growth Rate: {((profile.growthRate - 1) * 100).toFixed(0)}%</label>
-                        <input type="range" min="1.0" max="3.0" step="0.1" value={profile.growthRate} onChange={(e) => updateProfile('growthRate', parseFloat(e.target.value))} className="w-full" />
+                      <div className="border-t-2 border-gray-200 pt-6">
+                        <div className="flex items-center justify-between mb-4">
+                          <label className="block text-sm font-semibold text-gray-700">Growth Projection</label>
+                          <button
+                            onClick={() => setUseGrowth(!useGrowth)}
+                            className={`px-3 py-1 rounded text-sm font-medium transition-colors ${useGrowth ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'}`}
+                          >
+                            {useGrowth ? 'ON' : 'OFF'}
+                          </button>
+                        </div>
+
+                        {useGrowth && (
+                          <>
+                            <div className="mb-4">
+                              <label className="block text-sm font-semibold text-gray-700 mb-2">Projection Horizon: {projectionYears} years</label>
+                              <input 
+                                type="range" 
+                                min="1" 
+                                max="10" 
+                                value={projectionYears} 
+                                onChange={(e) => setProjectionYears(parseInt(e.target.value))} 
+                                className="w-full" 
+                              />
+                              <div className="flex justify-between text-xs text-gray-500 mt-1">
+                                <span>1 year</span>
+                                <span>10 years</span>
+                              </div>
+                            </div>
+
+                            <div className="mb-4">
+                              <label className="flex items-center text-sm text-gray-700 mb-2">
+                                <input 
+                                  type="checkbox" 
+                                  checked={yearByYearGrowth} 
+                                  onChange={(e) => setYearByYearGrowth(e.target.checked)} 
+                                  className="mr-2"
+                                />
+                                Year-by-year growth rates
+                              </label>
+                            </div>
+
+                            {!yearByYearGrowth ? (
+                              <div>
+                                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                  Overall Growth Rate: {((profile.growthRate - 1) * 100).toFixed(1)}% per year
+                                </label>
+                                <input 
+                                  type="number"
+                                  min="0"
+                                  max="300"
+                                  step="0.5"
+                                  value={((profile.growthRate - 1) * 100).toFixed(1)}
+                                  onChange={(e) => updateProfile('growthRate', 1 + (parseFloat(e.target.value) || 0) / 100)}
+                                  className="w-full border-2 border-gray-300 rounded-lg px-4 py-2 mb-2 focus:border-blue-500 focus:outline-none"
+                                />
+                                <input 
+                                  type="range" 
+                                  min="0" 
+                                  max="200" 
+                                  step="1" 
+                                  value={(profile.growthRate - 1) * 100} 
+                                  onChange={(e) => updateProfile('growthRate', 1 + parseFloat(e.target.value) / 100)} 
+                                  className="w-full" 
+                                />
+                                <div className="flex justify-between text-xs text-gray-500 mt-1">
+                                  <span>0%</span>
+                                  <span>200%</span>
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="space-y-3">
+                                {Array.from({ length: Math.min(projectionYears - 1, 5) }).map((_, idx) => (
+                                  <div key={idx}>
+                                    <label className="block text-xs font-semibold text-gray-700 mb-1">
+                                      Year {idx + 1} → {idx + 2}: {yearlyGrowthRates[idx]}%
+                                    </label>
+                                    <input 
+                                      type="range" 
+                                      min="0" 
+                                      max="200" 
+                                      value={yearlyGrowthRates[idx]} 
+                                      onChange={(e) => updateYearlyGrowth(idx, parseInt(e.target.value))} 
+                                      className="w-full" 
+                                    />
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -289,7 +599,7 @@
                     <div className="bg-gradient-to-br from-blue-50 to-white border-2 border-blue-200 rounded-lg p-6">
                       <div className="text-sm font-medium text-gray-600 mb-2">With CodeLocker</div>
                       <div className="text-3xl font-bold text-gray-900">${(roi.expectedLossWith / 1000000).toFixed(2)}M</div>
-                      <div className="text-sm text-gray-500">3-year expected loss</div>
+                      <div className="text-sm text-gray-500">{projectionYears}-year expected loss</div>
                     </div>
                     <div className="bg-gradient-to-br from-green-50 to-white border-2 border-green-200 rounded-lg p-6">
                       <div className="text-sm font-medium text-gray-600 mb-2">Your Net ROI</div>
@@ -299,7 +609,7 @@
                   </div>
 
                   <div className="bg-white border-2 border-gray-200 rounded-lg p-6">
-                    <h3 className="text-xl font-bold text-gray-900 mb-4">3-Year Projection</h3>
+                    <h3 className="text-xl font-bold text-gray-900 mb-4">{projectionYears}-Year Projection</h3>
                     <div className="overflow-x-auto">
                       <table className="w-full text-sm">
                         <thead className="bg-gray-50">
@@ -342,7 +652,7 @@
                       <div>
                         <div className="flex justify-between text-sm mb-2">
                           <span className="font-semibold text-gray-700">Without CodeLocker</span>
-                          <span className="text-red-600 font-bold">15% breach probability</span>
+                          <span className="text-red-600 font-bold">15% annual breach probability</span>
                         </div>
                         <div className="h-8 bg-red-100 rounded-lg flex items-center px-4">
                           <div className="h-4 bg-red-600 rounded" style={{width: '15%'}}></div>
@@ -351,7 +661,7 @@
                       <div>
                         <div className="flex justify-between text-sm mb-2">
                           <span className="font-semibold text-gray-700">With CodeLocker</span>
-                          <span className="text-green-600 font-bold">3% breach probability (80% reduction)</span>
+                          <span className="text-green-600 font-bold">3% annual breach probability (80% reduction)</span>
                         </div>
                         <div className="h-8 bg-green-100 rounded-lg flex items-center px-4">
                           <div className="h-4 bg-green-600 rounded" style={{width: '3%'}}></div>
@@ -368,8 +678,13 @@
             <div className="max-w-7xl mx-auto px-6 py-12">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <div>
-                  <a href="https://codelocker.zevainc.com/"><h3 className="font-bold text-xl mb-4">CodeLocker by Zeva Inc.</h3></a>
+                  <a href="https://codelocker.zevainc.com/" className="hover:opacity-80 transition-opacity">
+                    <h3 className="font-bold text-xl mb-4">CodeLocker by Zeva Inc.</h3>
+                  </a>
                   <p className="text-gray-400 text-sm">Enterprise-grade software supply chain security powered by Zero Trust architecture.</p>
+                  <div className="mt-4">
+                    <a href="https://codelocker.zevainc.com/" className="text-sm text-blue-400 hover:text-blue-300 transition-colors">Visit CodeLocker →</a>
+                  </div>
                 </div>
                 <div>
                   <h4 className="font-semibold mb-4">Data Sources</h4>
@@ -383,11 +698,11 @@
                 <div>
                   <h4 className="font-semibold mb-4">Contact</h4>
                   <p className="text-sm text-gray-400 mb-4">Ready to secure your supply chain?</p>
-                  <a href="https://codelocker.zevainc.com/" className="inline-block bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">Get Started</a>
+                  <a href="https://codelocker.zevainc.com/" className="inline-block bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition-colors">Get Started</a>
                 </div>
               </div>
               <div className="border-t border-gray-800 mt-8 pt-8 text-center text-sm text-gray-500">
-                <p>© 2025 <a href="https://codelocker.zevainc.com/" className="text-gray-400 hover:text-white">Zeva Inc.</a> All rights reserved.</p>
+                <p>© 2026 <a href="https://codelocker.zevainc.com/" className="text-gray-400 hover:text-white transition-colors">Zeva Inc.</a> All rights reserved.</p>
                 <p className="mt-2">Columbia MSBA Capstone Project</p>
               </div>
             </div>
