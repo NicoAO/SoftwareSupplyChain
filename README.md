@@ -4,7 +4,7 @@ Interactive ROI calculator for CodeLocker's supply chain security platform.
 
 ## Live Demo
 
-Visit the live dashboard: [Your GitHub Pages URL will appear here after deployment]
+Visit the live dashboard: https://nicoao.github.io/SoftwareSupplyChain/
 
 ## About
 
