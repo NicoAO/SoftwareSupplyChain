@@ -109,7 +109,9 @@
     };
 
     const calculateCodeLockerCost = (developers) => {
+      if (developers <= 0) return 0;
       const tier = CODELOCKER_PRICING.tiers.find(t => developers >= t.min && developers <= t.max);
+      if (!tier) return 0;
       return developers * tier.pricePerUser;
     };
 
