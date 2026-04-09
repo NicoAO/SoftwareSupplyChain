@@ -150,12 +150,10 @@
         });
         
         // Apply growth for next year
-        if (year < years) {
+        if (year < years && profile.enableGrowth) {
           // Revenue growth
-          if (profile.enableGrowth) {
-            const growthRate = 1 + (profile.revenueGrowthRate / 100);
-            currentRevenue = currentRevenue * growthRate;
-          }
+          const growthRate = 1 + (profile.revenueGrowthRate / 100);
+          currentRevenue = currentRevenue * growthRate;
           
           // Developer hiring
           const newHires = yearlyDeveloperHires && yearlyDeveloperHires[year - 1] ? 
@@ -202,7 +200,7 @@
         revenueGrowthRate: 15
       });
       const [projectionYears, setProjectionYears] = useState(3);
-      const [yearlyDeveloperHires, setYearlyDeveloperHires] = useState([10, 10, 10, 10, 10, 10, 10, 10, 10]);
+      const [yearlyDeveloperHires, setYearlyDeveloperHires] = useState([0, 0, 0, 0, 0, 0, 0, 0, 0]);
       const [customYearlyHires, setCustomYearlyHires] = useState(false);
 
       const updateProfile = (key, value) => {
