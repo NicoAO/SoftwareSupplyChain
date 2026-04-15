@@ -12,7 +12,7 @@ This dashboard helps organizations calculate the return on investment for implem
 
 ### Features
 
-- **Educational Context**: Supply chain attack statistics and real breach costs
+- **Context**: Supply chain attack statistics and real breach costs
 - **Interactive Calculator**: Real-time ROI calculations based on company profile
 - **Detailed Analysis**: Deep dive into cost components and implementation roadmap
 
@@ -24,20 +24,11 @@ All calculations based on 2025 reports from:
 - Coalition Cyber Claims Report
 - CISA Cost of Cyber Incidents Study
 
-## Technology Stack
 
-- React 18
-- Recharts (data visualization)
-- Tailwind CSS
-- Pure JavaScript calculations (no backend required)
 
-## Local Development
 
-Simply open `index.html` in your browser. No build process or server required.
 
-## Deployment
 
-This site is deployed using GitHub Pages. Any push to the `main` branch automatically updates the live site.
 
 ## License
 
