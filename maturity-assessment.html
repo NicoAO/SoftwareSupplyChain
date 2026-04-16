@@ -3,663 +3,740 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CodeLocker Security Maturity Assessment</title>
-  
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  
+  <title>SCRM Maturity Assessment - CodeLocker by Zeva Inc.</title>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
   <style>
-    body { 
-      font-family: 'IBM Plex Sans', sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      background-attachment: fixed;
-    }
-    .main-container {
-      background: white;
-      min-height: 100vh;
-    }
-    .hero-gradient {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    }
-    .card-shadow {
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-    }
-    .maturity-level-0 { background: linear-gradient(135deg, #fee2e2 0%, #fca5a5 100%); }
-    .maturity-level-1 { background: linear-gradient(135deg, #fed7aa 0%, #fb923c 100%); }
-    .maturity-level-2 { background: linear-gradient(135deg, #fef08a 0%, #facc15 100%); }
-    .maturity-level-3 { background: linear-gradient(135deg, #bbf7d0 0%, #4ade80 100%); }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'IBM Plex Sans', sans-serif; background: #fff; color: #111827; line-height: 1.6; min-height: 100vh; }
+    a { color: #3b82f6; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .page-wrap { max-width: 860px; margin: 0 auto; padding: 0 20px 80px; }
+    .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+    .back-link { color: rgba(255,255,255,0.9); font-size: 14px; display: flex; align-items: center; gap: 6px; transition: color 0.15s; }
+    .back-link:hover { color: #fff; text-decoration: none; }
+    .card { background: #fff; border: 2px solid #e5e7eb; border-radius: 8px; padding: 24px; margin-bottom: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+    .btn { padding: 11px 22px; border-radius: 6px; font-family: 'IBM Plex Sans', sans-serif; font-weight: 600; font-size: 15px; cursor: pointer; border: none; transition: all 0.15s; display: inline-flex; align-items: center; gap: 8px; }
+    .btn-primary { background: #3b82f6; color: #fff; }
+    .btn-primary:hover { background: #2563eb; }
+    .btn-primary:disabled { background: #bfdbfe; color: #93c5fd; cursor: not-allowed; }
+    .btn-ghost { background: rgba(255,255,255,0.15); color: #fff; border: 1px solid rgba(255,255,255,0.4); }
+    .btn-ghost:hover { background: rgba(255,255,255,0.25); color: #fff; }
+    .btn-lg { padding: 15px 36px; font-size: 16px; }
+    .progress-track { background: #e5e7eb; border-radius: 4px; height: 5px; }
+    .progress-fill { height: 100%; background: #3b82f6; border-radius: 4px; transition: width 0.3s ease; }
+    .radio-opt { display: block; padding: 13px 16px; border: 2px solid #e5e7eb; border-radius: 6px; margin-bottom: 8px; cursor: pointer; transition: all 0.12s; background: #fff; }
+    .radio-opt:hover { border-color: #3b82f6; background: #eff6ff; }
+    .radio-opt.sel { border-color: #3b82f6; background: #eff6ff; }
+    .radio-inner { display: flex; gap: 12px; align-items: flex-start; }
+    .lvl-dot { width: 18px; height: 18px; border-radius: 50%; flex-shrink: 0; margin-top: 3px; }
+    .l0c { background: #ef4444; }
+    .l1c { background: #f97316; }
+    .l2c { background: #eab308; }
+    .l3c { background: #22c55e; }
+    .tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; letter-spacing: 0.03em; }
+    .tag-fw { background: #eef2ff; color: #4338ca; border: 1px solid #c7d2fe; margin: 2px; }
+    .tag-l0 { background: #fee2e2; color: #dc2626; }
+    .tag-l1 { background: #ffedd5; color: #ea580c; }
+    .tag-l2 { background: #fef9c3; color: #ca8a04; }
+    .tag-l3 { background: #dcfce7; color: #16a34a; }
+    .bar-wrap { position: relative; height: 18px; background: #e5e7eb; border-radius: 4px; overflow: visible; margin: 6px 0 14px; }
+    .bar-fill { height: 100%; border-radius: 4px; transition: width 0.6s ease; }
+    .l2-mark { position: absolute; top: -5px; bottom: -5px; width: 2px; background: #9ca3af; left: 66.67%; }
+    .l2-mark::after { content: 'L2 target'; position: absolute; top: -18px; left: 50%; transform: translateX(-50%); font-size: 10px; color: #9ca3af; white-space: nowrap; font-family: 'IBM Plex Sans', sans-serif; }
+    .acc-item { border: 2px solid #e5e7eb; border-radius: 8px; margin-bottom: 10px; overflow: hidden; }
+    .acc-head { padding: 15px 20px; background: #f9fafb; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+    .acc-head:hover { background: #f3f4f6; }
+    .acc-body { padding: 20px; background: #fff; border-top: 1px solid #f3f4f6; }
+    .risk-hero { background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 24px; display: flex; flex-direction: column; justify-content: center; }
+    .risk-num { font-size: 44px; font-weight: 700; color: #dc2626; line-height: 1; }
+    .cta-box { background: linear-gradient(135deg, #1e1b4b, #312e81); border: 1px solid #3730a3; border-radius: 8px; padding: 36px; text-align: center; margin-top: 40px; }
+    .btn-cta { background: #3b82f6; color: #fff; padding: 15px 40px; border-radius: 6px; font-size: 16px; font-weight: 600; font-family: 'IBM Plex Sans', sans-serif; cursor: pointer; border: none; display: inline-block; text-decoration: none; transition: background 0.15s; }
+    .btn-cta:hover { background: #2563eb; text-decoration: none; color: #fff; }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .divider { border: none; border-top: 1px solid #e5e7eb; margin: 20px 0; }
+    .cl-cap { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 6px; padding: 12px 16px; margin-bottom: 8px; }
+    .cl-cap-title { font-size: 13px; font-weight: 600; color: #1d4ed8; margin-bottom: 4px; }
+    .cl-cap-desc { font-size: 13px; color: #4b5563; }
+    .priority-item { display: flex; align-items: flex-start; gap: 14px; padding: 14px 0; border-bottom: 1px solid #f3f4f6; }
+    .priority-rank { width: 28px; height: 28px; border-radius: 50%; background: #f3f4f6; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #9ca3af; flex-shrink: 0; margin-top: 2px; }
+    .priority-rank.top { background: #dbeafe; color: #2563eb; }
+    @media (max-width: 600px) { .grid2 { grid-template-columns: 1fr; } .risk-num { font-size: 32px; } .header { flex-wrap: wrap; gap: 8px; } }
   </style>
 </head>
 <body>
-  <div id="root"></div>
+<div id="root"></div>
+<script type="text/babel">
+const { useState } = React;
 
-  <script type="text/babel">
-    const { useState, useEffect } = React;
+const LVL_COLORS = ["#ef4444","#f97316","#eab308","#22c55e"];
+const LVL_DOT_CLS = ["l0c","l1c","l2c","l3c"];
+const LVL_TAG_CLS = ["tag-l0","tag-l1","tag-l2","tag-l3"];
+const LVL_LABELS = ["Ad Hoc","Defined","Managed","Optimized"];
 
-    const MATURITY_DOMAINS = {
-      governance: {
-        title: "People & Governance",
-        questions: [
-          {
-            id: "gov_1",
-            text: "Does your organization have executive-level support for software supply chain security?",
-            levels: {
-              0: "No executive awareness or support",
-              1: "Some executives aware, but no formal commitment",
-              2: "Executive sponsor assigned with budget allocation",
-              3: "C-suite driven initiative with board oversight"
-            }
-          },
-          {
-            id: "gov_2",
-            text: "Are security roles and responsibilities clearly defined across development teams?",
-            levels: {
-              0: "Roles undefined; individuals pursue ad-hoc security efforts",
-              1: "Basic security roles identified but not formalized",
-              2: "Formal roles with clear responsibilities and escalation paths",
-              3: "Centralized governance with Expert Review Boards for security standards"
-            }
-          },
-          {
-            id: "gov_3",
-            text: "How are encryption and cryptographic policies managed?",
-            levels: {
-              0: "No formal policies; keys hard-coded or stored insecurely",
-              1: "Basic policies exist but enforcement is manual",
-              2: "Documented policies with some automation",
-              3: "Centralized HSM-based key management with automated enforcement"
-            }
-          }
-        ]
-      },
-      training: {
-        title: "Training & Culture",
-        questions: [
-          {
-            id: "train_1",
-            text: "What level of security training do developers receive?",
-            levels: {
-              0: "No formal security training",
-              1: "Basic training on common vulnerabilities for some staff",
-              2: "Mandatory security training for all development personnel",
-              3: "Continuous learning with specialized training on supply chain threats"
-            }
-          },
-          {
-            id: "train_2",
-            text: "Is there a culture of security awareness across the organization?",
-            levels: {
-              0: "Security seen as obstacle; developers actively circumvent controls",
-              1: "Growing awareness but still treated as compliance checkbox",
-              2: "Security culture established; treated as shared responsibility",
-              3: "Security is integral to development; addressed throughout lifecycle"
-            }
-          },
-          {
-            id: "train_3",
-            text: "Can your team identify and remediate unintentional code vulnerabilities?",
-            levels: {
-              0: "No capability to identify vulnerabilities proactively",
-              1: "Reactive responses to external vulnerability reports",
-              2: "Regular scanning with manual review processes",
-              3: "Automated detection with skilled personnel for complex analysis"
-            }
-          }
-        ]
-      },
-      supplyChain: {
-        title: "Supply Chain Integrity",
-        questions: [
-          {
-            id: "sc_1",
-            text: "How do you verify the integrity of third-party software and dependencies?",
-            levels: {
-              0: "Implicit trust in all components; no verification",
-              1: "Basic SBOM awareness; manual review of some critical dependencies",
-              2: "Automated SBOM generation; shift-left security in CI/CD",
-              3: "Continuous validation with reproducible builds and verified trust chains"
-            }
-          },
-          {
-            id: "sc_2",
-            text: "How are software artifacts signed and verified?",
-            levels: {
-              0: "No code signing; binaries deployed without verification",
-              1: "Ad-hoc code signing for some critical releases",
-              2: "Consistent code signing with manual key management",
-              3: "Automated commit-to-deployment signing with HSM-backed keys"
-            }
-          },
-          {
-            id: "sc_3",
-            text: "Do you inspect closed-source third-party binaries before deployment?",
-            levels: {
-              0: "No inspection; vendor software trusted by default",
-              1: "Basic vulnerability scanning of vendor software",
-              2: "Regular security assessments of vendor relationships",
-              3: "Complex binary analysis to detect hidden risks and backdoors"
-            }
-          }
-        ]
-      },
-      cicd: {
-        title: "CI/CD & DevSecOps",
-        questions: [
-          {
-            id: "cicd_1",
-            text: "How is security integrated into your development pipeline?",
-            levels: {
-              0: "Security tests only at final deployment stage",
-              1: "Some automated security checks in CI/CD",
-              2: "Comprehensive DevSecOps with security gates at each stage",
-              3: "Zero Trust CI/CD with continuous verification and attestation"
-            }
-          },
-          {
-            id: "cicd_2",
-            text: "How do you manage secrets and credentials in your pipeline?",
-            levels: {
-              0: "Secrets hard-coded or stored in repositories",
-              1: "Environment variables or basic secret stores",
-              2: "Centralized secret management with rotation policies",
-              3: "HSM-backed secrets with just-in-time provisioning"
-            }
-          },
-          {
-            id: "cicd_3",
-            text: "Can you trace software provenance from commit to deployment?",
-            levels: {
-              0: "No provenance tracking capability",
-              1: "Manual logging of major releases",
-              2: "Automated logging with some gap in chain of custody",
-              3: "Complete cryptographic attestation at every lifecycle stage"
-            }
-          }
-        ]
-      }
-    };
+const DOMAINS = [
+  {
+    id:1, name:"Governance, Compliance & Executive Ownership", weight:0.10,
+    desc:"Organizational leadership, policy, budget, and regulatory readiness for supply chain security.",
+    riskCost:599000,
+    riskNote:"Gaps here add an estimated $599K in annual exposure: CISO designation saves $114K, board oversight saves $111K, noncompliance penalties add $174K, shadow AI incidents add $200K (IBM 2025).",
+    attack:"The SolarWinds breach ran for 9 months before a third party discovered it. Most victim organizations had no formal supply chain risk ownership and no standing process for responding. Governance gaps do not cause breaches directly. They determine how long a breach goes unaddressed and how chaotic the response turns out to be.",
+    steps:[
+      "Designate a formal owner with defined authority for supply chain security. CISO or VP Engineering, not a shared responsibility that belongs to no one.",
+      "Write a supply chain security policy and schedule an annual review tied to regulatory updates (EO 14028, CISA attestation requirements).",
+      "Add supply chain threats to the enterprise risk register with at least quarterly reporting to leadership.",
+      "Create an AI governance policy: which tools developers can use, approval processes for AI-generated code, and how to detect shadow AI."
+    ],
+    fws:["NIST SSDF PO.1.1","NIST SP 800-161r1","NIST CSF GV.RM","SAFECode"],
+    cl:null,
+    qs:[
+      { id:"1.1", text:"Does your organization have a formally designated owner (CISO, VP Engineering, or equivalent) responsible for software supply chain security?",
+        opts:["No designated owner. Supply chain security responsibility is undefined.","An individual has been informally assigned but lacks formal authority or mandate.","A formally designated owner exists with defined authority and reporting structure.","Executive level ownership with a review board, quarterly reporting to the board, and supply chain risk integrated into enterprise risk management."],
+        fws:["NIST SSDF PO.1.1","NIST SP 800-161r1 Level 1"] },
+      { id:"1.2", text:"Is there a documented software supply chain security policy that is reviewed and updated at least annually?",
+        opts:["No documented policy exists.","A policy exists but has not been reviewed or updated in over 12 months.","A policy exists and is reviewed and updated annually.","Policy is reviewed quarterly, aligned with regulatory changes (EO 14028, CISA attestation requirements), and enforced with measurable compliance checks."],
+        fws:["NIST SSDF PO.1.2","NIST SP 800-161r1 Level 2","SAFECode"] },
+      { id:"1.3", text:"Does the organization maintain a formal risk register that includes software supply chain threats, with regular reporting to leadership?",
+        opts:["No risk register or formal tracking of supply chain threats.","Risks are tracked informally or in ad hoc documents.","A formal risk register exists and is reported to leadership at least quarterly.","Risk register is integrated into enterprise risk management with automated risk scoring and board level visibility."],
+        fws:["NIST SP 800-161r1 Level 2","NIST CSF GV.RM"] },
+      { id:"1.4", text:"Is there a dedicated budget allocation for software supply chain security tools and processes?",
+        opts:["No dedicated budget. Security spending is reactive or absorbed into general IT.","Some budget exists but is not formally allocated to supply chain security.","A dedicated budget line item exists for supply chain security tools and processes.","Budget is tied to a multi-year roadmap with measurable investment targets and ROI tracking."],
+        fws:["NIST SP 800-161r1 Level 1","NIST SSDF PO.1.1"] },
+      { id:"1.5", text:"Does the organization have governance policies for the use of AI tools in software development, including approval processes for AI-generated code and monitoring for shadow AI?",
+        opts:["No AI governance policies. Developers use AI tools without oversight.","Informal guidelines exist but are not enforced or monitored.","Formal AI usage policies with an approval process for AI tools in development workflows.","AI governance program with approval processes, regular audits for unsanctioned AI, adversarial testing of AI models, and monitoring for shadow AI across development environments."],
+        fws:["NIST CSF GV","IBM AI Governance findings"] }
+    ]
+  },
+  {
+    id:2, name:"Software Composition & Dependency Management", weight:0.15,
+    desc:"How the organization tracks, evaluates, and secures the third-party and open-source components in its software.",
+    riskCost:227000,
+    riskNote:"Supply chain breaches tied to unmanaged dependencies add $227K to the average breach cost (IBM 2025). Without SBOMs, organizations also face significant discovery and response time after vulnerability disclosures.",
+    attack:"When CVE-2021-44228 (Log4Shell) was disclosed, organizations without SBOMs had no way to identify which systems were affected. Some took weeks. Attackers were actively exploiting the vulnerability within hours of public disclosure. The gap was not technical. It was the absence of an inventory.",
+    steps:[
+      "Start generating SBOMs for production software, even if only for major releases. Work toward CISA Minimum Elements compliance.",
+      "Automate SBOM generation in CI/CD so it happens on every build, not manually after the fact.",
+      "Add dependency scanning to your pipeline that blocks builds on critical CVEs. Integrate CISA KEV catalog alerts.",
+      "Write an OSS approval policy with defined acceptable licenses and a process for bringing in new dependencies.",
+      "Track transitive dependencies. Direct dependencies are only part of the exposure surface."
+    ],
+    fws:["NIST SSDF PW.4","EO 14028","CISA SBOM Minimum Elements","OWASP CICD-SEC-3","SLSA Source Track"],
+    cl:[
+      { cap:"Signed SBOMs (CISA 2025 Minimum Elements)", desc:"Addresses gaps in SBOM generation (Q2.1) and automated SBOM processes (Q2.2). CodeLocker generates cryptographically signed SBOMs that satisfy CISA attestation requirements." }
+    ],
+    qs:[
+      { id:"2.1", text:"Does your organization generate Software Bills of Materials (SBOMs) for all production software?",
+        opts:["No SBOMs are generated.","SBOMs are generated for some projects, typically on request.","SBOMs are generated for all production software on a regular schedule.","SBOMs are generated for all software, signed cryptographically, and satisfy the CISA 2025 Minimum Elements for SBOMs."],
+        fws:["NIST SSDF PW.4.1","EO 14028","CISA SBOM Minimum Elements"] },
+      { id:"2.2", text:"Are SBOMs generated automatically as part of the build process, not manually or ad hoc?",
+        opts:["SBOMs are not generated or are created manually.","Some SBOM generation is scripted but not integrated into CI/CD.","SBOM generation is automated within the CI/CD pipeline for all builds.","Automated SBOM generation with version tracking, diff analysis between builds, and automated alerts on component changes."],
+        fws:["SLSA Source Track","NIST SSDF PW.4.4"] },
+      { id:"2.3", text:"Do you scan dependencies for known vulnerabilities (CVEs) before they enter the build pipeline?",
+        opts:["No dependency vulnerability scanning.","Periodic manual scans or scanning only on major releases.","Automated scanning in CI/CD that flags vulnerabilities. Critical vulnerabilities block the build.","Continuous scanning with automated blocking based on severity thresholds, integration with CISA KEV catalog, and mean time to remediate tracked as a KPI."],
+        fws:["NIST SSDF PW.4.2","CISA KEV","OWASP CICD-SEC-3"] },
+      { id:"2.4", text:"Do you have policies governing the approval and use of open-source components, including license compliance?",
+        opts:["No policies. Developers pull in any dependency they choose.","Informal guidelines or recommendations but no enforcement.","A formal OSS approval process with a maintained list of approved/restricted components and license compliance checks.","Automated policy enforcement in CI/CD that blocks unapproved components, flags license conflicts, and tracks provenance of all open-source dependencies."],
+        fws:["NIST SSDF PW.4.1","SAFECode Economy of Mechanism"] },
+      { id:"2.5", text:"Can you trace transitive dependencies (dependencies of dependencies) in your software?",
+        opts:["No visibility into transitive dependencies.","Some awareness of direct dependencies but no systematic transitive tracking.","Tooling in place that maps the full dependency tree including transitive dependencies for all projects.","Full dependency graph with automated alerting on transitive vulnerability exposure, reachability analysis, and remediation prioritization."],
+        fws:["NIST SSDF PW.4.4","SLSA Source Track"] },
+      { id:"2.6", text:"Do you track the provenance of AI models, training data, and ML pipeline components used in your software with the same rigor as traditional code dependencies?",
+        opts:["AI models and data are used without provenance tracking.","Some awareness of which AI models are in use, but no formal tracking.","An inventory of AI models and datasets exists with basic version tracking.","AI model provenance is tracked with integrity verification, versioning, and the same approval and scanning processes applied to traditional code dependencies."],
+        fws:["NIST SSDF PW.4","OWASP CICD-SEC-3"] }
+    ]
+  },
+  {
+    id:3, name:"Build Pipeline Integrity", weight:0.15,
+    desc:"The security and integrity of the CI/CD pipeline that compiles, tests, and deploys software.",
+    riskCost:227000,
+    riskNote:"Organizations with DevSecOps practices save $227K per breach on average (IBM 2025). Build pipeline gaps also expose organizations to the class of attacks that hit SolarWinds, 3CX, and XZ Utils.",
+    attack:"The SolarWinds attackers did not breach customer networks directly. They modified the build pipeline. The malware they inserted was signed with SolarWinds' legitimate certificate and shipped as a routine update. Every customer that applied the update was compromised. None of them had any reason to suspect it. A secured, isolated, monitored build pipeline would have flagged the unauthorized modification before the artifact was signed and shipped.",
+    steps:[
+      "Move to build-as-code with version-controlled pipeline definitions subject to the same review process as application code.",
+      "Isolate build environments from developer workstations and general networks. Ephemeral build workers are better than persistent shared servers.",
+      "Add security gates (SAST, SCA, container scanning) that block builds on critical findings.",
+      "Retain build logs in append-only storage. You will need them for forensics.",
+      "Scope pipeline permissions tightly. Each build job should only access the secrets and systems it specifically requires."
+    ],
+    fws:["SLSA Build Level 1-3","OWASP CICD-SEC-1","OWASP CICD-SEC-5","OWASP CICD-SEC-7","NIST SSDF PW.7"],
+    cl:[
+      { cap:"CI/CD Pipeline Integration", desc:"Addresses gaps in security gates (Q3.3) and pipeline access controls (Q3.5). CodeLocker integrates directly into CI/CD workflows without requiring changes to the pipeline structure." },
+      { cap:"Long-Term Validation (LTV)", desc:"Addresses build log retention and tamper-evidence requirements (Q3.4). LTV ensures build records and signatures remain verifiable over time." }
+    ],
+    qs:[
+      { id:"3.1", text:"Are your build environments isolated from developer workstations and general-purpose networks?",
+        opts:["Builds run on developer machines or shared, multi-purpose servers.","A dedicated build server exists but is not network-isolated.","Build environments are isolated with restricted network access and dedicated infrastructure.","Hermetic build environments with no external network access during builds, ephemeral build workers destroyed after each build, and hardware level isolation."],
+        fws:["SLSA Build Level 2","OWASP CICD-SEC-7"] },
+      { id:"3.2", text:"Are builds executed through a defined, version-controlled pipeline (build-as-code) rather than ad hoc scripts?",
+        opts:["Builds are manual or use unversioned scripts.","Some build automation exists but pipeline definitions are not version controlled.","All builds run through version-controlled pipeline definitions with change history.","Pipeline definitions are subject to the same review and approval process as application code, with branch protection and required approvals for pipeline changes."],
+        fws:["SLSA Build Level 1","OWASP CICD-SEC-1"] },
+      { id:"3.3", text:"Does your CI/CD pipeline include automated security gates (SAST, DAST, SCA) that block builds on policy failure?",
+        opts:["No security scanning in the pipeline.","Security scanning exists but results are advisory only and do not block builds.","Automated security gates that block builds when critical or high-severity issues are found.","Multi-layered security gates (SAST, DAST, SCA, container scanning) with severity-based policies, exception workflows for approved risk acceptance, and trend reporting."],
+        fws:["NIST SSDF PW.7","SLSA Build Level 2"] },
+      { id:"3.4", text:"Are build logs retained and tamper-protected for forensic analysis?",
+        opts:["Build logs are not retained or are ephemeral.","Logs are retained but stored in editable or deletable locations.","Logs are retained in append-only or write-once storage with defined retention periods.","Tamper-evident build logs with cryptographic integrity verification, long-term retention (1+ year), and integration with SIEM for anomaly detection."],
+        fws:["SLSA Build Level 3","NIST SSDF PO.3","OWASP CICD-SEC-10"] },
+      { id:"3.5", text:"Are pipeline execution permissions scoped so that build jobs can only access the specific secrets, systems, and artifacts they require?",
+        opts:["Build jobs run with broad access to secrets and systems.","Some access scoping exists but most jobs have access to more than they need.","Secrets and system access are scoped per-job based on what each pipeline step requires.","Fine-grained, just-in-time credential injection with automatic rotation. Jobs cannot access secrets outside their defined scope. Access patterns are logged and auditable."],
+        fws:["OWASP CICD-SEC-5","SAFECode Least Privilege"] }
+    ]
+  },
+  {
+    id:4, name:"Code Signing & Artifact Provenance", weight:0.15,
+    desc:"How software artifacts are signed, verified, and traced back to their source and build process.",
+    riskCost:225000,
+    riskNote:"Code signing reduces the cost and likelihood of supply chain compromise by $150K-$300K per incident (IBM 2025, midpoint $225K). A valid signature without provenance is not sufficient to verify artifact integrity.",
+    attack:"In the 3CX attack, malware was embedded in a signed application installer. The signature was technically valid. What was missing was provenance: verification that the artifact was produced by the expected pipeline, from the expected source, at the expected commit. Signature without provenance provides a false sense of security. Attackers who control the build process can produce validly signed malicious artifacts.",
+    steps:[
+      "Sign all release artifacts as part of the CI/CD process. Make unsigned artifacts un-deployable.",
+      "Store signing keys in an HSM or cloud KMS. Keys on developer machines are a single point of failure.",
+      "Automate signing so it is never a manual step that gets skipped under pressure.",
+      "Add provenance metadata linking each artifact to its source commit, build pipeline ID, and builder identity. Work toward full SLSA provenance."
+    ],
+    fws:["NIST SSDF PS.2","SLSA Provenance","OWASP CICD-SEC-9"],
+    cl:[
+      { cap:"Commit-Level and Binary-Level Code Signing", desc:"Addresses gaps in artifact signing (Q4.1), signing automation (Q4.3), and provenance metadata (Q4.4). Signs at both commit and binary level for a complete chain of custody." },
+      { cap:"HSM-Based Key Management", desc:"Addresses gaps in key storage (Q4.2). Signing keys are stored in FIPS 140-3 certified HSMs with centralized management and full audit trails on key usage." }
+    ],
+    qs:[
+      { id:"4.1", text:"Does your organization digitally sign all software artifacts (binaries, containers, packages) before release?",
+        opts:["No code signing.","Some artifacts are signed, but inconsistently (e.g., only external releases).","All release artifacts are signed as a standard part of the release process.","All artifacts (internal and external) are signed, with automated verification at every deployment boundary. Unsigned artifacts are blocked from deployment."],
+        fws:["NIST SSDF PS.2.1","SLSA Provenance","OWASP CICD-SEC-9"] },
+      { id:"4.2", text:"Are signing keys stored in Hardware Security Modules (HSMs) or equivalent tamper-resistant hardware?",
+        opts:["Keys are stored in software keystores, config files, or on developer machines.","Keys are stored in cloud key management services but not in dedicated hardware.","Keys are stored in HSMs or equivalent tamper-resistant hardware with access controls.","FIPS 140-3 Level 3 certified HSMs with centralized key management, automated key rotation, and audit trails for all key usage."],
+        fws:["NIST SSDF PS.2.1","SAFECode Complete Mediation"] },
+      { id:"4.3", text:"Is the code signing process automated within the CI/CD pipeline, not a manual step performed by individual developers?",
+        opts:["Signing is manual or not performed.","Signing is partially automated but requires manual intervention for some artifact types.","Signing is fully automated within the CI/CD pipeline for all artifact types.","Signing is automated, integrated with build provenance, and includes verification gates that confirm the signing identity matches the authorized pipeline before release."],
+        fws:["SLSA Build Level 2","NIST SSDF PS.2"] },
+      { id:"4.4", text:"Do your signed artifacts include provenance metadata (what was built, from which source, by which pipeline)?",
+        opts:["No provenance metadata is attached to artifacts.","Basic metadata (version, timestamp) but no build provenance.","Provenance metadata includes source commit, build pipeline ID, and builder identity.","Full SLSA provenance with cryptographic binding to the build process, verifiable by downstream consumers, and retained for long-term validation."],
+        fws:["SLSA Provenance","NIST SSDF PS.2.1"] }
+    ]
+  },
+  {
+    id:5, name:"Identity, Access & Secret Management", weight:0.12,
+    desc:"How the organization controls who and what can access development infrastructure, and how secrets are handled.",
+    riskCost:190000,
+    riskNote:"IAM improvements save $190K per breach on average (IBM 2025). Most pipeline compromises start with a stolen or overly permissive credential, not a zero-day exploit.",
+    attack:"In the CircleCI breach (2023), attackers stole a machine account token with access to customer secrets stored in CI/CD pipelines. The token was not rotated, was not scoped to specific customers, and was not monitored for anomalous usage. Thousands of customer secrets were exposed. The root cause was not sophisticated. It was a credential with too much access and no expiration.",
+    steps:[
+      "Audit permissions across all development infrastructure. Remove everything that is not actively needed.",
+      "Move all secrets to a dedicated vault with access logging and audit trails. Remove secrets from code, configs, and environment variables.",
+      "Enforce MFA on all development systems: repos, CI/CD, artifact registries, deployment infrastructure.",
+      "Take an inventory of non-human identities: service accounts, API keys, bot tokens. Set expiration on all of them."
+    ],
+    fws:["SAFECode Least Privilege","NIST SSDF PO.2","OWASP CICD-SEC-2","OWASP CICD-SEC-6","CIS Controls 5-6"],
+    cl:[
+      { cap:"Zero Trust Architecture", desc:"Addresses gaps in least-privilege access (Q5.1), MFA enforcement (Q5.3), and non-human identity management (Q5.4). No implicit trust for any identity, human or machine." },
+      { cap:"HSM-Based Key Management", desc:"Addresses gaps in secrets management (Q5.2). Centralized vault with hardware-backed storage, automated rotation, and dynamic secret generation." }
+    ],
+    qs:[
+      { id:"5.1", text:"Do all developers and CI/CD systems operate under least-privilege access controls with role-based permissions?",
+        opts:["Shared accounts or overly broad permissions are common.","Individual accounts exist but permissions are not regularly reviewed or scoped.","Role-based access control with permissions scoped to job function. Regular access reviews.","Just-in-time access provisioning with automatic expiration. Access reviews are automated and access patterns are monitored for anomalies."],
+        fws:["SAFECode Least Privilege","NIST SSDF PO.2","OWASP CICD-SEC-2","CIS Controls 6"] },
+      { id:"5.2", text:"Are secrets (API keys, tokens, credentials) managed through a dedicated secrets vault rather than stored in code, config files, or environment variables?",
+        opts:["Secrets are hard-coded in source, stored in config files, or passed as environment variables without a vault.","Some secrets are in a vault but legacy secrets remain in code or config.","All secrets are managed through a dedicated vault with access controls and audit logging.","Centralized secrets management with automated rotation, dynamic secret generation, and automated scanning for leaked secrets in repositories."],
+        fws:["NIST SSDF PO.5.2","OWASP CICD-SEC-6","CIS Controls 5"] },
+      { id:"5.3", text:"Is multi-factor authentication enforced for all access to source code repositories, build systems, and artifact registries?",
+        opts:["No MFA on development infrastructure.","MFA is available but not required for all systems.","MFA is enforced on all development infrastructure (repos, CI/CD, registries).","Hardware-token based MFA (FIDO2/WebAuthn) enforced on all systems, with phishing-resistant authentication and conditional access policies."],
+        fws:["NIST SSDF PO.2","SAFECode Complete Mediation","CIS Controls 6.3/6.4"] },
+      { id:"5.4", text:"Does the organization inventory and manage non-human identities (service accounts, API keys, bot tokens, AI agent credentials) with the same rigor as human identities?",
+        opts:["Non-human identities are untracked. Service accounts and API keys are created ad hoc.","Some awareness of non-human identities but no systematic inventory or lifecycle management.","A formal inventory of non-human identities exists with defined owners and periodic reviews.","Complete NHI lifecycle management with automated credential expiration, usage monitoring, anomaly detection, and the same access governance applied to human identities."],
+        fws:["NIST SSDF PO.5.2","OWASP CICD-SEC-2"] }
+    ]
+  },
+  {
+    id:6, name:"Third-Party & Vendor Risk Management", weight:0.13,
+    desc:"How the organization evaluates, monitors, and manages security risk from software vendors and third-party components.",
+    riskCost:4910000,
+    riskNote:"Third-party supply chain breaches cost $4.91M on average, the highest of any attack vector in IBM's 2025 dataset. This reflects both the direct cost of the breach and the downstream impact across the victim's customer base.",
+    attack:"The XZ Utils backdoor was inserted by a contributor who spent two years building trust as an open-source maintainer before introducing malicious code. It was caught by a Microsoft engineer who noticed a small performance anomaly, not by any organizational security process. For closed-source vendors, you have even less visibility. You are running code you did not write, cannot review, and are trusting the vendor to keep secure.",
+    steps:[
+      "Implement a vendor security assessment process before onboarding any new software vendor. Use defined criteria, not just a questionnaire that goes in a drawer.",
+      "For high-risk closed-source software, consider independent binary analysis rather than trusting vendor documentation.",
+      "Schedule vendor access reviews at least quarterly. Revoke access immediately when contracts end.",
+      "Add security clauses to vendor contracts: breach notification timelines (24-72 hours), SBOM delivery with each release, and right to audit."
+    ],
+    fws:["NIST SP 800-161r1","NIST SSDF PW.4","SAFECode Defense in Depth","EO 14028"],
+    cl:[
+      { cap:"Complex Binary Analysis", desc:"Addresses gaps in third-party software analysis (Q6.2). Analyzes closed-source binaries without requiring access to source code, to identify hidden risks or malicious tampering." }
+    ],
+    qs:[
+      { id:"6.1", text:"Does your organization assess the security posture of software vendors and third-party components before integration?",
+        opts:["No security assessment. Vendors are selected on functionality and price alone.","Security questionnaires are sent to some vendors but responses are not systematically evaluated.","A formal vendor risk assessment process exists for all software vendors, with defined criteria and scoring.","Continuous vendor monitoring with automated risk scoring, integration into procurement workflows, and supply chain risk assessments aligned with NIST SP 800-161r1."],
+        fws:["NIST SP 800-161r1 Level 2","NIST SSDF PW.4.1","SAFECode Defense in Depth"] },
+      { id:"6.2", text:"Do you perform any form of analysis (static, dynamic, or binary) on closed-source third-party software before deployment?",
+        opts:["Closed-source software is trusted by default. No analysis is performed.","Vendor security documentation is reviewed but no independent analysis is conducted.","Basic static or dynamic analysis is performed on high-risk third-party software.","Complex binary analysis of all third-party commercial software, without requiring access to source code, to identify hidden risks, logic bombs, or malicious tampering."],
+        fws:["NIST SP 800-161r1 Level 3","NIST SSDF PW.4","SAFECode Complete Mediation"] },
+      { id:"6.3", text:"Are third-party vendor access privileges reviewed and audited on a regular schedule?",
+        opts:["Vendor access is granted and rarely reviewed.","Ad hoc reviews when issues arise but no regular schedule.","Scheduled access reviews (at least quarterly) with documented approval and revocation processes.","Automated continuous monitoring of vendor access with real-time alerting on anomalous behavior, automatic deprovisioning on contract expiration, and least-privilege enforcement."],
+        fws:["NIST SP 800-161r1 Level 2","NIST SSDF PO.2","SAFECode Least Privilege"] },
+      { id:"6.4", text:"Does your organization have contractual security requirements (including breach notification and SBOM delivery obligations) with critical software vendors?",
+        opts:["No security clauses in vendor contracts.","Generic security language exists in some contracts but is not specific or enforceable.","Contractual security requirements include defined breach notification timelines, SBOM delivery, and security audit rights.","Vendor contracts include specific SLAs for breach notification (within 24-72 hours), mandatory SBOM delivery with each release, right to audit, and penalty clauses for noncompliance."],
+        fws:["NIST SP 800-161r1 Level 2","EO 14028"] }
+    ]
+  },
+  {
+    id:7, name:"Security Culture & Training", weight:0.08,
+    desc:"How the organization builds and sustains security knowledge across development teams.",
+    riskCost:365000,
+    riskNote:"Employee security training saves $192K per breach on average. Skills shortage adds $173K. Together, culture and training gaps represent $365K in annual exposure (IBM 2025).",
+    attack:"Many dependency confusion attacks in 2021 worked because developers ran install scripts from packages they found online without checking provenance. The packages used naming patterns that basic supply chain security training would have flagged. The XZ Utils backdoor succeeded partly because the affected project had one maintainer and no process for reviewing new contributors with elevated trust.",
+    steps:[
+      "Add supply chain security to mandatory developer training. Cover concrete cases: Log4Shell response, XZ Utils social engineering, dependency confusion attacks.",
+      "Update training content annually or when major incidents happen. Training on 2019 threats does not prepare people for 2025 attacks.",
+      "Establish secure coding standards, enforce them in CI/CD, and track compliance with metrics.",
+      "Run tabletop exercises that include supply chain compromise scenarios. Knowing the playbook on paper is different from running through it under pressure."
+    ],
+    fws:["SAFECode Psychological Acceptability","NIST SSDF PO.2.2","CIS Controls 14","NIST SP 800-161r1"],
+    cl:null,
+    qs:[
+      { id:"7.1", text:"Do all development personnel receive mandatory training on software supply chain threats, beyond general security awareness?",
+        opts:["No supply chain specific training.","General security awareness training is provided but does not cover supply chain threats specifically.","Mandatory supply chain security training for all development staff, delivered at least annually.","Role-specific training programs with hands-on labs. Security champions program embedded in development teams. Training effectiveness is measured and tracked."],
+        fws:["SAFECode Psychological Acceptability","NIST SSDF PO.2.2","CIS Controls 14"] },
+      { id:"7.2", text:"Is security training updated to reflect current threats (dependency confusion, typosquatting, social engineering of OSS projects, AI-generated code risks)?",
+        opts:["No training, or training content is generic and outdated.","Training exists but has not been updated in the past 12 months.","Training content is updated annually to reflect the current threat landscape.","Training is updated quarterly or in response to major incidents, includes real-world case studies (SolarWinds, Log4Shell, XZ Utils), and covers emerging threats like AI-generated code risks."],
+        fws:["SAFECode","NIST SSDF PO.2.3"] },
+      { id:"7.3", text:"Are there defined secure coding standards that developers are trained on and held accountable to?",
+        opts:["No secure coding standards.","Standards exist as reference documents but are not enforced or trained on.","Standards are documented, included in training, and compliance is checked during code review.","Standards are enforced through automated tooling in CI/CD, tracked with metrics, and deviations require formal risk acceptance."],
+        fws:["NIST SSDF PW.5","SAFECode Fundamental Practices"] },
+      { id:"7.4", text:"Does your organization conduct security exercises (tabletops, red teams) that include supply chain compromise scenarios?",
+        opts:["No security exercises.","General security exercises exist but do not include supply chain scenarios.","Supply chain compromise scenarios are included in tabletop exercises at least annually.","Regular exercises (quarterly+) including red team engagements targeting the build pipeline and dependency infrastructure, with documented lessons learned and remediation tracking."],
+        fws:["NIST SSDF PO.2","SAFECode Defense in Depth","CIS Controls 17"] }
+    ]
+  },
+  {
+    id:8, name:"Detection, Response & Recovery", weight:0.12,
+    desc:"The organization's ability to detect supply chain compromises, respond to incidents, and recover.",
+    riskCost:2112000,
+    riskNote:"AI and automation in security operations saves up to $1.9M per breach. SIEM deployment saves $212K. Together, detection and response gaps represent $2.112M in annual exposure (IBM 2025).",
+    attack:"SolarWinds was notified of the breach by FireEye, a security firm that discovered the malware while investigating its own systems. The attackers had been active for 9 months before that notification. Without it, the timeline would have been longer. Most supply chain compromises are discovered by third parties, not by the victim's own monitoring. The difference between organizations that recover quickly and those that do not comes down to whether they had a tested response plan and real-time monitoring before the breach.",
+    steps:[
+      "Write a supply chain specific IR playbook with defined roles, communication plans, and escalation steps. Test it in a tabletop exercise before you need it.",
+      "Deploy monitoring that can detect unauthorized changes to build artifacts, dependencies, and pipeline configurations in real time.",
+      "Implement SIEM or equivalent across development and deployment infrastructure. Define alert rules for build anomalies and dependency changes.",
+      "Track mean time to patch critical vulnerabilities as a KPI. Set targets: assessment within 72 hours, patch within 14 days for critical CVEs."
+    ],
+    fws:["NIST SSDF RV.1-3","NIST CSF RS","SLSA Build Level 3","CIS Controls 17"],
+    cl:[
+      { cap:"Long-Term Validation (LTV)", desc:"Addresses integrity monitoring gaps (Q8.2). LTV maintains cryptographic evidence of artifact integrity over time, enabling detection of unauthorized modifications even after the fact." }
+    ],
+    qs:[
+      { id:"8.1", text:"Does your organization have a documented incident response plan that specifically addresses software supply chain compromise scenarios?",
+        opts:["No incident response plan, or the plan does not address supply chain scenarios.","A general IR plan exists but supply chain compromise is not covered in detail.","A supply chain specific IR playbook exists with defined roles, communication plans, and escalation procedures.","Tested and exercised IR plan with supply chain specific runbooks, automated response actions, defined SLAs for containment and communication, and post-incident review processes."],
+        fws:["NIST SSDF RV.1.1","NIST SP 800-161r1","NIST CSF RS"] },
+      { id:"8.2", text:"Do you have continuous monitoring in place that can detect, in real time, unauthorized modifications to build artifacts, dependencies, or pipeline configurations?",
+        opts:["No monitoring for unauthorized changes to build infrastructure.","Some logging exists but is not monitored in real time.","Continuous monitoring with alerting on unauthorized changes to build artifacts, dependencies, and pipeline configurations.","Real-time integrity monitoring with automated response (e.g., automatic rollback on unauthorized changes), correlated with SIEM and threat intelligence feeds."],
+        fws:["NIST SSDF RV.1.2","SLSA Build Level 3","NIST CSF DE","CIS Controls 17"] },
+      { id:"8.3", text:"Do you use automated security monitoring tools (SIEM, SOAR, AI-driven detection) across your development and deployment infrastructure?",
+        opts:["No automated security monitoring of development infrastructure.","Basic logging with manual review.","SIEM or equivalent deployed covering development and deployment infrastructure with defined alert rules.","AI-driven detection and automated response (SOAR) across the full development lifecycle, with security orchestration covering prevention, detection, investigation, and response."],
+        fws:["NIST SSDF RV.1","NIST CSF DE","CIS Controls 17"] },
+      { id:"8.4", text:"When a vulnerability is disclosed in a component you use, what is your typical time to assess impact and deploy a patch?",
+        opts:["No defined process. Response time is unpredictable or measured in months.","A process exists but response time for critical vulnerabilities exceeds 30 days.","Critical vulnerabilities are assessed within 72 hours and patched within 14 days.","Automated impact assessment using SBOM data within 24 hours. Critical vulnerabilities patched within 72 hours. Mean time to remediate tracked as a KPI."],
+        fws:["NIST SSDF RV.2","NIST SSDF RV.3","NIST CSF RS"] }
+    ]
+  }
+];
 
-    const FRAMEWORK_MAPPINGS = {
-      nist: "NIST SP 800-218 (Secure Software Development Framework)",
-      slsa: "SLSA (Supply-chain Levels for Software Artifacts)",
-      safecode: "SAFECode Fundamental Practices"
-    };
+function domainScore(domainId, answers) {
+  const d = DOMAINS.find(x => x.id === domainId);
+  const vals = d.qs.map(q => answers[q.id]).filter(v => v !== undefined);
+  if (vals.length === 0) return 0;
+  return vals.reduce((a,b) => a+b, 0) / d.qs.length;
+}
 
-    const CODELOCKER_CAPABILITIES = {
-      governance: [
-        "Centralized policy enforcement across all development teams",
-        "HSM-based cryptographic key management (FIPS 140-3 Level 3)",
-        "Audit trails for compliance and forensic analysis"
-      ],
-      training: [
-        "Automated security checks reduce manual burden on developers",
-        "Built-in best practices enforcement through platform design",
-        "Real-time feedback on security issues during development"
-      ],
-      supplyChain: [
-        "Signed SBOMs that satisfy CISA 2025 Minimum Elements",
-        "Complex binary analysis to detect vendor software tampering",
-        "Zero Trust verification of all software artifacts"
-      ],
-      cicd: [
-        "Automated code signing integrated into CI/CD pipelines",
-        "Complete software provenance tracking from commit to deployment",
-        "Just-in-time secret provisioning with HSM security"
-      ]
-    };
+function calcOverall(answers) {
+  let ws = 0;
+  for (const d of DOMAINS) ws += domainScore(d.id, answers) * d.weight;
+  return Math.round((ws / 3) * 100);
+}
 
-    const AssessmentTool = () => {
-      const [currentTab, setCurrentTab] = useState('assessment');
-      const [responses, setResponses] = useState({});
-      const [showResults, setShowResults] = useState(false);
+function calcRisk(answers) {
+  let total = 0;
+  for (const d of DOMAINS) { if (domainScore(d.id, answers) < 2.0) total += d.riskCost; }
+  return total;
+}
 
-      const updateResponse = (questionId, level) => {
-        setResponses(prev => ({...prev, [questionId]: level}));
-      };
+function fmtMoney(n) {
+  if (n >= 1000000) return '$' + (n/1000000).toFixed(2) + 'M';
+  if (n >= 1000) return '$' + Math.round(n/1000) + 'K';
+  return '$' + n;
+}
 
-      const calculateMaturityScore = () => {
-        const domainScores = {};
-        let totalQuestions = 0;
-        let totalScore = 0;
+function ScoreGauge({ score }) {
+  const r=52, cx=70, cy=70, circ=2*Math.PI*r;
+  const fill=(score/100)*circ;
+  const color = score>=75?'#22c55e':score>=50?'#eab308':score>=25?'#f97316':'#ef4444';
+  const lbl = score>=75?'Optimized':score>=50?'Managed':score>=25?'Defined':'Ad Hoc';
+  return (
+    <div style={{textAlign:'center'}}>
+      <svg width="140" height="140" viewBox="0 0 140 140">
+        <circle cx={cx} cy={cy} r={r} fill="none" stroke="#e5e7eb" strokeWidth="12"/>
+        <circle cx={cx} cy={cy} r={r} fill="none" stroke={color} strokeWidth="12"
+          strokeDasharray={fill+" "+(circ-fill)} strokeLinecap="round"
+          transform={"rotate(-90 "+cx+" "+cy+")"}/>
+        <text x={cx} y={cy-6} textAnchor="middle" fill="#1f2937" fontSize="30" fontWeight="700" fontFamily="IBM Plex Sans,sans-serif">{score}</text>
+        <text x={cx} y={cy+16} textAnchor="middle" fill="#6b7280" fontSize="12" fontFamily="IBM Plex Sans,sans-serif">out of 100</text>
+      </svg>
+      <div style={{fontSize:14,fontWeight:600,color,marginTop:2}}>{lbl}</div>
+    </div>
+  );
+}
 
-        Object.entries(MATURITY_DOMAINS).forEach(([domainKey, domain]) => {
-          let domainTotal = 0;
-          domain.questions.forEach(q => {
-            const response = responses[q.id];
-            if (response !== undefined) {
-              domainTotal += response;
-              totalScore += response;
-              totalQuestions++;
-            }
-          });
-          const avgScore = domainTotal / domain.questions.length;
-          domainScores[domainKey] = {
-            score: avgScore,
-            level: Math.round(avgScore),
-            title: domain.title
-          };
-        });
+function Logo() {
+  return (
+    <a href="https://codelocker.zevainc.com/" style={{display:'inline-flex',alignItems:'center'}}>
+      <svg viewBox="0 0 160 44" style={{height:30,width:'auto'}}>
+        <defs>
+          <linearGradient id="lg1x" x1="25.47" y1="10.26" x2="45.16" y2="21.63" gradientUnits="userSpaceOnUse">
+            <stop offset=".07" stopColor="#fff"/><stop offset="1" stopColor="#ddd"/>
+          </linearGradient>
+          <linearGradient id="lg2x" x1="-316.75" y1="1546.28" x2="-297.06" y2="1557.65" gradientTransform="translate(-298.09 1580.02) rotate(-180)" xlinkHref="#lg1x"/>
+        </defs>
+        <path d="m41.82,12.19L29.24,3.73c.01.14.02.28.02.43l.08,6.49c0,1.66-.83,3.22-2.21,4.14l-3.38,2.17,10.67,7.17,9.72-.72v-6.89c0-1.74-.86-3.36-2.31-4.33Z" fill="url(#lg1x)"/>
+        <path d="m37.47,17.76.08-8.44,0,0l4.36,2.93c1.39.93,2.22,2.49,2.22,4.16v11.13c0,1.66-.83,3.22-2.21,4.14l-17,11.44c-3.37,2.26-7.9-.15-7.9-4.21v-4.74c0-1.66.83-3.22,2.21-4.14l18.25-12.27c1.38-.91,2.29-2.47,2.29-4.24s-.87-3.28-2.21-4.19h0Z" fill="#fff"/>
+        <path d="m2.31,31.81l12.59,8.46c-.01-.14-.02-.28-.02-.43l-.08-6.49c0-1.66.83-3.22,2.21-4.14l3.38-2.17-10.67-7.17L0,20.58v6.89C0,29.21.86,30.84,2.31,31.81Z" fill="url(#lg2x)"/>
+        <path d="m6.65,26.24-.08,8.44,0,0l-4.36-2.93c-1.39-.93-2.22-2.49-2.22-4.16v-11.13c0-1.66.83-3.22,2.21-4.14L19.21.87c3.37-2.26,7.9.15,7.9,4.21v4.74c0,1.66-.83,3.22-2.21,4.14L6.65,26.24c-1.38.91-2.29,2.47-2.29,4.24s.87,3.28,2.21,4.19h0Z" fill="#fff"/>
+        <text x="52" y="31" fontFamily="IBM Plex Sans,sans-serif" fontWeight="600" fontSize="18" fill="#fff">CodeLocker</text>
+      </svg>
+    </a>
+  );
+}
 
-        const overallLevel = totalQuestions > 0 ? Math.round(totalScore / totalQuestions) : 0;
-        
-        return { domainScores, overallLevel, totalQuestions };
-      };
+function IntroScreen({ onStart }) {
+  return (
+    <div className="page-wrap" style={{paddingTop:48}}>
+      <div style={{maxWidth:620,margin:'0 auto'}}>
+        <div style={{marginBottom:10,fontSize:12,color:'#6b7280',fontWeight:600,letterSpacing:'0.08em',textTransform:'uppercase'}}>Zeva Inc. / CodeLocker</div>
+        <h1 style={{fontSize:34,fontWeight:700,color:'#111827',lineHeight:1.2,marginBottom:16}}>Software Supply Chain Risk Management Maturity Assessment</h1>
+        <p style={{fontSize:15,color:'#4b5563',marginBottom:32,lineHeight:1.75}}>
+          This assessment measures your organization's readiness across 8 domains of software supply chain security. It takes about 10 minutes. At the end, you get a maturity score, an estimated annual risk exposure based on IBM 2025 data, and a prioritized set of recommendations.
+        </p>
+        <div className="card" style={{marginBottom:24}}>
+          <div style={{display:'flex',gap:20,flexWrap:'wrap'}}>
+            <div style={{flex:1,minWidth:120}}>
+              <div style={{fontSize:12,color:'#6b7280',marginBottom:4}}>Domains covered</div>
+              <div style={{fontSize:24,fontWeight:700,color:'#111827'}}>8</div>
+            </div>
+            <div style={{flex:1,minWidth:120}}>
+              <div style={{fontSize:12,color:'#6b7280',marginBottom:4}}>Total questions</div>
+              <div style={{fontSize:24,fontWeight:700,color:'#111827'}}>36</div>
+            </div>
+            <div style={{flex:1,minWidth:120}}>
+              <div style={{fontSize:12,color:'#6b7280',marginBottom:4}}>Time to complete</div>
+              <div style={{fontSize:24,fontWeight:700,color:'#111827'}}>~10 min</div>
+            </div>
+          </div>
+        </div>
+        <div style={{marginBottom:32,padding:'14px 18px',background:'#f9fafb',border:'1px solid #e5e7eb',borderRadius:6}}>
+          <div style={{fontSize:12,color:'#6b7280',marginBottom:6,fontWeight:600}}>Frameworks referenced</div>
+          <div style={{fontSize:13,color:'#4b5563',lineHeight:1.65}}>NIST SSDF, NIST SP 800-161r1, NIST CSF, SLSA, OWASP CICD Top 10, SAFECode, CIS Controls, EO 14028, CISA SBOM Minimum Elements</div>
+        </div>
+        <button className="btn btn-primary btn-lg" onClick={onStart}>Start Assessment</button>
+      </div>
+    </div>
+  );
+}
 
-      const results = calculateMaturityScore();
-      const allQuestionsAnswered = results.totalQuestions === 
-        Object.values(MATURITY_DOMAINS).reduce((acc, d) => acc + d.questions.length, 0);
+function AssessmentScreen({ answers, onAnswer, currentDomainIdx, onNext, onBack, onFinish }) {
+  const domain = DOMAINS[currentDomainIdx];
+  const totalQs = DOMAINS.reduce((s,d) => s+d.qs.length, 0);
+  const answeredTotal = Object.keys(answers).length;
+  const domainDone = domain.qs.every(q => answers[q.id] !== undefined);
+  const progressPct = Math.round((answeredTotal/totalQs)*100);
+  const isLast = currentDomainIdx === DOMAINS.length-1;
+  const remaining = domain.qs.filter(q => answers[q.id] === undefined).length;
 
-      const getLevelLabel = (level) => {
-        const labels = {
-          0: "Ad-hoc",
-          1: "Defined",
-          2: "Managed",
-          3: "Optimized"
-        };
-        return labels[level] || "Unknown";
-      };
+  return (
+    <div>
+      <div style={{background:'#f9fafb',borderBottom:'1px solid #e5e7eb',padding:'10px 24px'}}>
+        <div style={{maxWidth:860,margin:'0 auto'}}>
+          <div style={{display:'flex',alignItems:'center',gap:16,flexWrap:'wrap'}}>
+            <div style={{flex:1,minWidth:200}}>
+              <div style={{display:'flex',justifyContent:'space-between',marginBottom:5,fontSize:12}}>
+                <span style={{color:'#6b7280'}}>Domain {currentDomainIdx+1} of {DOMAINS.length}</span>
+                <span style={{color:'#9ca3af'}}>{progressPct}% complete</span>
+              </div>
+              <div className="progress-track"><div className="progress-fill" style={{width:progressPct+'%'}}/></div>
+            </div>
+            <div style={{display:'flex',gap:5}}>
+              {DOMAINS.map((d,i) => (
+                <div key={d.id} style={{width:9,height:9,borderRadius:'50%',
+                  background:i<currentDomainIdx?'#3b82f6':i===currentDomainIdx?'#60a5fa':'#d1d5db',
+                  opacity:i===currentDomainIdx?1:i<currentDomainIdx?0.8:0.5}}/>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
 
-      const getLevelDescription = (level) => {
-        const descriptions = {
-          0: "Your organization has minimal formal processes for supply chain security. Critical gaps exist that expose you to significant risk.",
-          1: "Basic security practices are in place, but implementation is inconsistent. You're vulnerable to sophisticated supply chain attacks.",
-          2: "You have structured processes and some automation, but gaps remain in continuous verification and third-party software inspection.",
-          3: "Excellent work! Your organization demonstrates strong commitment to supply chain security with mature processes and controls in place. Even at this level, CodeLocker can enhance your operations by automating complex verification workflows, reducing operational overhead, and providing cryptographic guarantees that scale with your growth. Explore CodeLocker to make your security infrastructure even more efficient."
-        };
-        return descriptions[level] || "";
-      };
+      <div className="page-wrap" style={{paddingTop:32}}>
+        <div style={{marginBottom:4,fontSize:11,color:'#9ca3af',fontWeight:600,letterSpacing:'0.08em',textTransform:'uppercase'}}>Domain {domain.id} of 8</div>
+        <h2 style={{fontSize:22,fontWeight:700,color:'#111827',marginBottom:6}}>{domain.name}</h2>
+        <p style={{fontSize:13,color:'#6b7280',marginBottom:28,maxWidth:580}}>{domain.desc}</p>
 
-      const getGapAnalysis = () => {
-        const gaps = [];
-        Object.entries(results.domainScores).forEach(([key, data]) => {
-          if (data.level < 3) {
-            const domain = MATURITY_DOMAINS[key];
-            gaps.push({
-              domain: data.title,
-              currentLevel: data.level,
-              targetLevel: 3,
-              capabilities: CODELOCKER_CAPABILITIES[key]
-            });
-          }
-        });
-        return gaps;
-      };
-
-      return (
-        <div className="main-container">
-          <header className="hero-gradient text-white">
-            <div className="max-w-7xl mx-auto px-6 py-6">
-              <div className="flex items-center justify-between">
-                <a href="https://codelocker.zevainc.com/" className="hover:opacity-80 transition-opacity">
-                  <div className="text-2xl font-bold">CodeLocker</div>
-                  <div className="text-sm opacity-90">Supply Chain Security Maturity Assessment</div>
-                </a>
-                <div className="flex gap-4">
-                  <a href="index.html" className="px-4 py-2 rounded font-semibold transition-colors bg-purple-800 text-white hover:bg-purple-900 flex items-center gap-2">
-                    <span>←</span> Back to Home
-                  </a>
-                  <button onClick={() => {setCurrentTab('assessment'); setShowResults(false);}} className={`px-4 py-2 rounded font-semibold transition-colors ${currentTab === 'assessment' ? 'bg-white text-purple-600' : 'bg-purple-700 text-white hover:bg-purple-600'}`}>
-                    Assessment
-                  </button>
-                  <button onClick={() => setCurrentTab('frameworks')} className={`px-4 py-2 rounded font-semibold transition-colors ${currentTab === 'frameworks' ? 'bg-white text-purple-600' : 'bg-purple-700 text-white hover:bg-purple-600'}`}>
-                    Frameworks
-                  </button>
-                  <button onClick={() => setCurrentTab('research')} className={`px-4 py-2 rounded font-semibold transition-colors ${currentTab === 'research' ? 'bg-white text-purple-600' : 'bg-purple-700 text-white hover:bg-purple-600'}`}>
-                    Research
-                  </button>
-                </div>
+        {domain.qs.map(q => {
+          const ans = answers[q.id];
+          return (
+            <div key={q.id} className="card">
+              <div style={{fontSize:11,color:'#9ca3af',fontWeight:600,marginBottom:4}}>Q{q.id}</div>
+              <p style={{fontSize:14,color:'#111827',marginBottom:14,lineHeight:1.65}}>{q.text}</p>
+              {q.opts.map((opt,li) => (
+                <label key={li} className={'radio-opt'+(ans===li?' sel':'')} onClick={() => onAnswer(q.id, li)}>
+                  <div className="radio-inner">
+                    <div className={'lvl-dot '+LVL_DOT_CLS[li]}/>
+                    <div>
+                      <span style={{fontSize:11,fontWeight:600,color:LVL_COLORS[li],marginRight:8}}>Level {li}</span>
+                      <span style={{fontSize:13,color:'#374151'}}>{opt}</span>
+                    </div>
+                  </div>
+                </label>
+              ))}
+              <div style={{marginTop:10,display:'flex',flexWrap:'wrap'}}>
+                {q.fws.map(f => <span key={f} className="tag tag-fw">{f}</span>)}
               </div>
             </div>
-          </header>
+          );
+        })}
 
-          <main className="max-w-7xl mx-auto px-6 py-12">
-            {currentTab === 'assessment' && !showResults && (
-              <div className="space-y-8">
-                <div className="text-center mb-12">
-                  <h1 className="text-4xl font-bold text-gray-900 mb-4">Assess Your Supply Chain Security Maturity</h1>
-                  <p className="text-xl text-gray-600 max-w-3xl mx-auto">Answer the questions below to discover where your organization stands and what gaps need to be addressed.</p>
-                  <div className="mt-6 text-sm text-gray-500">
-                    Progress: {results.totalQuestions} / {Object.values(MATURITY_DOMAINS).reduce((acc, d) => acc + d.questions.length, 0)} questions answered
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginTop:24,paddingTop:20,borderTop:'1px solid #e5e7eb'}}>
+          {currentDomainIdx>0
+            ? <button style={{padding:'10px 20px',borderRadius:6,fontFamily:'IBM Plex Sans,sans-serif',fontWeight:600,fontSize:14,cursor:'pointer',background:'#fff',color:'#6b7280',border:'2px solid #e5e7eb'}} onClick={onBack}>Back</button>
+            : <div/>}
+          <div style={{display:'flex',alignItems:'center',gap:10}}>
+            {!domainDone && <span style={{fontSize:12,color:'#9ca3af'}}>{remaining} unanswered</span>}
+            {isLast
+              ? <button className="btn btn-primary" disabled={!domainDone} onClick={onFinish}>See Results</button>
+              : <button className="btn btn-primary" disabled={!domainDone} onClick={onNext}>Next Domain</button>}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ResultsScreen({ answers, companyName }) {
+  const [openDomain, setOpenDomain] = useState(null);
+  const score = calcOverall(answers);
+  const risk = calcRisk(answers);
+  const domainScores = DOMAINS.map(d => ({ d, s: domainScore(d.id, answers) }));
+  const gapped = domainScores.filter(x => x.s < 2.0).sort((a,b) => b.d.riskCost-a.d.riskCost);
+  const top5 = gapped.slice(0,5);
+  const scoreColor = score>=75?'#22c55e':score>=50?'#eab308':score>=25?'#f97316':'#ef4444';
+  const scoreLabel = score>=75?'Optimized':score>=50?'Managed':score>=25?'Defined':'Ad Hoc';
+  const scoreSummary = score>=75
+    ? 'Your organization has strong controls across most domains. Focus on achieving Level 3 in key areas.'
+    : score>=50
+    ? 'Meaningful controls are in place. Several domains still need work before reaching a fully managed baseline.'
+    : score>=25
+    ? 'Core capabilities exist but are not consistently applied. Significant gaps remain across multiple domains.'
+    : 'Supply chain security practices are largely informal or absent. This represents near-term, material risk.';
+
+  return (
+    <div className="page-wrap" style={{paddingTop:36}}>
+      <h1 style={{fontSize:26,fontWeight:700,color:'#111827',marginBottom:6}}>SCRM Maturity Results</h1>
+      <p style={{fontSize:13,color:'#6b7280',marginBottom:28}}>Scored against IBM 2025 Cost of a Data Breach Report benchmarks and NIST SP 800-161r1.</p>
+
+      <div className="grid2" style={{marginBottom:20}}>
+        <div className="card" style={{display:'flex',alignItems:'center',gap:20,flexWrap:'wrap'}}>
+          <ScoreGauge score={score}/>
+          <div>
+            <div style={{fontSize:12,color:'#6b7280',marginBottom:4}}>Overall Maturity Score</div>
+            <div style={{fontSize:38,fontWeight:700,color:scoreColor,lineHeight:1}}>{score}<span style={{fontSize:15,color:'#9ca3af',fontWeight:400}}> / 100</span></div>
+            <span className={'tag '+LVL_TAG_CLS[score>=75?3:score>=50?2:score>=25?1:0]} style={{marginTop:8,display:'inline-block'}}>{scoreLabel}</span>
+            <p style={{marginTop:10,fontSize:12,color:'#4b5563',lineHeight:1.6,maxWidth:200}}>{scoreSummary}</p>
+          </div>
+        </div>
+        <div className="risk-hero">
+          <div style={{fontSize:12,color:'#6b7280',marginBottom:8}}>Estimated annual risk exposure from gaps</div>
+          <div className="risk-num">{fmtMoney(risk)}</div>
+          <div style={{fontSize:12,color:'#6b7280',marginTop:10}}>Domains below Level 2 baseline: {gapped.length} of 8</div>
+          <div style={{fontSize:11,color:'#9ca3af',marginTop:4}}>IBM Cost of a Data Breach Report 2025</div>
+        </div>
+      </div>
+
+      <div className="card" style={{marginBottom:20}}>
+        <h3 style={{fontSize:15,fontWeight:600,color:'#111827',marginBottom:18}}>Domain Scorecard</h3>
+        {domainScores.map(({d,s}) => {
+          const lvl = Math.min(3, Math.floor(s < 3 ? s : 3));
+          return (
+            <div key={d.id} style={{marginBottom:14}}>
+              <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:2}}>
+                <span style={{fontSize:13,color:'#374151'}}>{d.id}. {d.name}</span>
+                <div style={{display:'flex',alignItems:'center',gap:8,flexShrink:0,marginLeft:8}}>
+                  <span className={'tag '+LVL_TAG_CLS[lvl]}>L{lvl}</span>
+                  <span style={{fontSize:12,fontWeight:600,color:LVL_COLORS[lvl],minWidth:28,textAlign:'right'}}>{s.toFixed(1)}</span>
+                </div>
+              </div>
+              <div className="bar-wrap">
+                <div className="bar-fill" style={{width:((s/3)*100)+'%',background:LVL_COLORS[lvl]}}/>
+                <div className="l2-mark"/>
+              </div>
+            </div>
+          );
+        })}
+        <div style={{fontSize:11,color:'#9ca3af',marginTop:2}}>Vertical marker at 67% indicates the Level 2 minimum recommended baseline.</div>
+      </div>
+
+      {top5.length > 0 && (
+        <div className="card" style={{marginBottom:20}}>
+          <h3 style={{fontSize:15,fontWeight:600,color:'#111827',marginBottom:4}}>Priority Roadmap</h3>
+          <p style={{fontSize:12,color:'#6b7280',marginBottom:18}}>Top actions for domains below Level 2, ranked by estimated cost impact.</p>
+          {top5.map(({d},i) => (
+            <div key={d.id} className="priority-item">
+              <div className={'priority-rank'+(i<3?' top':'')}>{i+1}</div>
+              <div style={{flex:1}}>
+                <div style={{fontSize:13,fontWeight:600,color:'#111827',marginBottom:3}}>{d.name}</div>
+                <div style={{fontSize:12,color:'#4b5563',lineHeight:1.5}}>{d.steps[0]}</div>
+              </div>
+              <div style={{fontSize:13,fontWeight:600,color:'#dc2626',flexShrink:0,marginLeft:12}}>{fmtMoney(d.riskCost)}</div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <h3 style={{fontSize:17,fontWeight:600,color:'#111827',marginBottom:14,marginTop:32}}>Domain-by-Domain Breakdown</h3>
+      {domainScores.map(({d,s}) => {
+        const lvl = Math.min(3, Math.floor(s < 3 ? s : 3));
+        const isGap = s < 2.0;
+        const isOpen = openDomain === d.id;
+        return (
+          <div key={d.id} className="acc-item">
+            <div className="acc-head" onClick={() => setOpenDomain(isOpen ? null : d.id)}>
+              <div style={{flex:1}}>
+                <div style={{display:'flex',alignItems:'center',gap:8,flexWrap:'wrap'}}>
+                  <span style={{fontSize:14,fontWeight:600,color:'#111827'}}>{d.id}. {d.name}</span>
+                  <span className={'tag '+LVL_TAG_CLS[lvl]}>Level {lvl} ({LVL_LABELS[lvl]})</span>
+                  {isGap && <span className="tag" style={{background:'rgba(239,68,68,0.1)',color:'#ef4444',border:'1px solid rgba(239,68,68,0.2)'}}>Gap</span>}
+                </div>
+                <div style={{marginTop:6,maxWidth:300}}>
+                  <div style={{position:'relative',height:5,background:'#e5e7eb',borderRadius:3}}>
+                    <div style={{height:'100%',background:LVL_COLORS[lvl],borderRadius:3,width:((s/3)*100)+'%'}}/>
+                    <div style={{position:'absolute',top:-2,bottom:-2,width:2,background:'#9ca3af',left:'66.67%'}}/>
+                  </div>
+                </div>
+              </div>
+              <div style={{fontSize:18,color:'#6b7280',marginLeft:12,flexShrink:0}}>{isOpen?'−':'+'}</div>
+            </div>
+
+            {isOpen && (
+              <div className="acc-body">
+                <div style={{marginBottom:16}}>
+                  <div style={{fontSize:11,fontWeight:600,color:'#6b7280',marginBottom:8,letterSpacing:'0.07em',textTransform:'uppercase'}}>Question scores</div>
+                  {d.qs.map(q => {
+                    const qa = answers[q.id];
+                    return (
+                      <div key={q.id} style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',padding:'8px 0',borderBottom:'1px solid #e5e7eb',gap:12}}>
+                        <div style={{fontSize:12,color:'#374151',flex:1,lineHeight:1.55}}>{q.text}</div>
+                        {qa !== undefined
+                          ? <span className={'tag '+LVL_TAG_CLS[qa]} style={{flexShrink:0}}>Level {qa}</span>
+                          : <span style={{fontSize:11,color:'#9ca3af',flexShrink:0}}>No answer</span>}
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {isGap && (
+                  <div style={{marginBottom:16,padding:'12px 14px',background:'rgba(239,68,68,0.05)',border:'1px solid rgba(239,68,68,0.12)',borderRadius:6}}>
+                    <div style={{fontSize:11,fontWeight:600,color:'#ef4444',marginBottom:5,letterSpacing:'0.07em',textTransform:'uppercase'}}>Risk exposure</div>
+                    <div style={{fontSize:12,color:'#6b7280',lineHeight:1.6}}>{d.riskNote}</div>
+                  </div>
+                )}
+
+                <div style={{marginBottom:16}}>
+                  <div style={{fontSize:11,fontWeight:600,color:'#6b7280',marginBottom:8,letterSpacing:'0.07em',textTransform:'uppercase'}}>Real-world attack scenario</div>
+                  <p style={{fontSize:13,color:'#374151',lineHeight:1.7}}>{d.attack}</p>
+                </div>
+
+                {isGap && (
+                  <div style={{marginBottom:16}}>
+                    <div style={{fontSize:11,fontWeight:600,color:'#6b7280',marginBottom:8,letterSpacing:'0.07em',textTransform:'uppercase'}}>Recommended next steps</div>
+                    <ul style={{paddingLeft:0,listStyle:'none'}}>
+                      {d.steps.map((step,i) => (
+                        <li key={i} style={{display:'flex',gap:10,marginBottom:8,alignItems:'flex-start'}}>
+                          <span style={{width:18,height:18,borderRadius:'50%',background:'#eff6ff',border:'1px solid #bfdbfe',display:'flex',alignItems:'center',justifyContent:'center',fontSize:10,color:'#2563eb',flexShrink:0,marginTop:1}}>{i+1}</span>
+                          <span style={{fontSize:13,color:'#374151',lineHeight:1.6}}>{step}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                <div style={{marginBottom: isGap && d.cl ? 16 : 0}}>
+                  <div style={{fontSize:11,fontWeight:600,color:'#6b7280',marginBottom:8,letterSpacing:'0.07em',textTransform:'uppercase'}}>Framework references</div>
+                  <div style={{display:'flex',flexWrap:'wrap'}}>
+                    {d.fws.map(f => <span key={f} className="tag tag-fw">{f}</span>)}
                   </div>
                 </div>
 
-                {Object.entries(MATURITY_DOMAINS).map(([domainKey, domain]) => (
-                  <div key={domainKey} className="bg-white border-2 border-gray-200 rounded-lg p-6 card-shadow">
-                    <h2 className="text-2xl font-bold text-gray-900 mb-6">{domain.title}</h2>
-                    
-                    {domain.questions.map((question, idx) => (
-                      <div key={question.id} className="mb-8 last:mb-0">
-                        <h3 className="text-lg font-semibold text-gray-800 mb-4">{idx + 1}. {question.text}</h3>
-                        
-                        <div className="space-y-3">
-                          {[0, 1, 2, 3].map(level => (
-                            <button
-                              key={level}
-                              onClick={() => updateResponse(question.id, level)}
-                              className={`w-full text-left px-4 py-3 rounded-lg border-2 transition-all ${
-                                responses[question.id] === level
-                                  ? 'border-purple-600 bg-purple-50'
-                                  : 'border-gray-200 hover:border-purple-300'
-                              }`}
-                            >
-                              <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-3">
-                                  <span className={`px-3 py-1 rounded text-sm font-semibold ${
-                                    level === 0 ? 'bg-red-100 text-red-700' :
-                                    level === 1 ? 'bg-orange-100 text-orange-700' :
-                                    level === 2 ? 'bg-yellow-100 text-yellow-700' :
-                                    'bg-green-100 text-green-700'
-                                  }`}>
-                                    Level {level}
-                                  </span>
-                                  <span className="text-gray-700">{question.levels[level]}</span>
-                                </div>
-                                {responses[question.id] === level && (
-                                  <span className="text-purple-600 font-bold">✓</span>
-                                )}
-                              </div>
-                            </button>
-                          ))}
-                        </div>
+                {isGap && d.cl && (
+                  <div>
+                    <div className="divider"/>
+                    <div style={{fontSize:11,fontWeight:600,color:'#3b82f6',marginBottom:10,letterSpacing:'0.07em',textTransform:'uppercase'}}>How CodeLocker addresses these gaps</div>
+                    {d.cl.map((c,i) => (
+                      <div key={i} className="cl-cap">
+                        <div className="cl-cap-title">{c.cap}</div>
+                        <div className="cl-cap-desc">{c.desc}</div>
                       </div>
                     ))}
-                  </div>
-                ))}
-
-                {allQuestionsAnswered && (
-                  <div className="text-center">
-                    <button onClick={() => setShowResults(true)} className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-12 py-4 rounded-lg font-semibold text-lg hover:from-purple-700 hover:to-blue-700 transition-all transform hover:scale-105 card-shadow">
-                      View Your Results
-                    </button>
                   </div>
                 )}
               </div>
             )}
+          </div>
+        );
+      })}
 
-            {currentTab === 'assessment' && showResults && (
-              <div className="space-y-8">
-                <div className="text-center mb-12">
-                  <h1 className="text-4xl font-bold text-gray-900 mb-4">Your Maturity Assessment Results</h1>
-                  <p className="text-xl text-gray-600">Based on your responses, here's where you stand</p>
-                </div>
+      <div className="cta-box">
+        <h3 style={{fontSize:20,fontWeight:600,color:'#fff',marginBottom:10}}>See how CodeLocker closes these gaps</h3>
+        <p style={{color:'#64748b',marginBottom:24,maxWidth:460,margin:'0 auto 24px',fontSize:14,lineHeight:1.65}}>
+          CodeLocker addresses the most technically complex parts of the SCRM maturity gap: code signing, SBOM generation, artifact provenance, binary analysis, and Zero Trust pipeline security.
+        </p>
+        <a href="https://codelocker.zevainc.com/" className="btn-cta" target="_blank" rel="noopener noreferrer">Visit CodeLocker at Zeva Inc.</a>
+      </div>
 
-                <div className={`p-8 rounded-lg card-shadow maturity-level-${results.overallLevel}`}>
-                  <div className="text-center">
-                    <div className="text-6xl font-bold text-gray-900 mb-2">{getLevelLabel(results.overallLevel)}</div>
-                    <div className="text-2xl font-semibold text-gray-700 mb-4">Overall Maturity: Level {results.overallLevel}</div>
-                    <p className="text-lg text-gray-700 max-w-2xl mx-auto">{getLevelDescription(results.overallLevel)}</p>
-                  </div>
-                </div>
+      <div style={{textAlign:'center',marginTop:28,paddingTop:20,borderTop:'1px solid #e5e7eb'}}>
+        <p style={{fontSize:11,color:'#9ca3af'}}>Cost figures from IBM Cost of a Data Breach Report 2025. Frameworks: NIST SSDF, NIST SP 800-161r1, SLSA, OWASP CICD Top 10, SAFECode, CIS Controls.</p>
+        <p style={{fontSize:11,color:'#9ca3af',marginTop:3}}>© 2026 <a href="https://www.zevainc.com/" style={{color:'#6b7280'}}>Zeva Inc.</a> Columbia MSBA Capstone Project</p>
+      </div>
+    </div>
+  );
+}
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {Object.entries(results.domainScores).map(([key, data]) => (
-                    <div key={key} className={`p-6 rounded-lg border-2 card-shadow maturity-level-${data.level}`}>
-                      <h3 className="text-xl font-bold text-gray-900 mb-2">{data.title}</h3>
-                      <div className="text-3xl font-bold text-gray-800">Level {data.level}: {getLevelLabel(data.level)}</div>
-                      <div className="mt-4 h-4 bg-gray-200 rounded-full overflow-hidden">
-                        <div className="h-full bg-gray-800" style={{width: `${(data.score / 3) * 100}%`}}></div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+function App() {
+  const [screen, setScreen] = useState('intro');
+  const [answers, setAnswers] = useState({});
+  const [domainIdx, setDomainIdx] = useState(0);
 
-                <div className="bg-white border-2 border-gray-200 rounded-lg p-8 card-shadow">
-                  <h2 className="text-2xl font-bold text-gray-900 mb-6">Gap Analysis: How CodeLocker Helps</h2>
-                  
-                  {getGapAnalysis().length === 0 ? (
-                    <div className="text-center py-8 text-green-700 text-lg font-semibold">
-                      Congratulations! You've achieved optimal maturity across all domains.
-                    </div>
-                  ) : (
-                    <div className="space-y-6">
-                      {getGapAnalysis().map((gap, idx) => (
-                        <div key={idx} className="border-l-4 border-purple-600 pl-6">
-                          <h3 className="text-xl font-bold text-gray-900 mb-2">{gap.domain}</h3>
-                          <div className="text-sm text-gray-600 mb-3">
-                            Current: Level {gap.currentLevel} → Target: Level {gap.targetLevel}
-                          </div>
-                          <div className="bg-purple-50 border border-purple-200 rounded p-4">
-                            <div className="font-semibold text-purple-900 mb-2">CodeLocker capabilities that close this gap:</div>
-                            <ul className="space-y-1">
-                              {gap.capabilities.map((cap, i) => (
-                                <li key={i} className="text-sm text-gray-700">• {cap}</li>
-                              ))}
-                            </ul>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
+  function answer(qId, level) { setAnswers(prev => ({...prev, [qId]: level})); }
+  function start() { setDomainIdx(0); setScreen('assessment'); }
+  function next() { setDomainIdx(i => i+1); window.scrollTo({top:0,behavior:'smooth'}); }
+  function back() { setDomainIdx(i => i-1); window.scrollTo({top:0,behavior:'smooth'}); }
+  function finish() { setScreen('results'); window.scrollTo({top:0,behavior:'smooth'}); }
+  function restart() { setAnswers({}); setDomainIdx(0); setScreen('intro'); window.scrollTo({top:0,behavior:'smooth'}); }
 
-                <div className="text-center space-y-4">
-                  <a href="https://codelocker.zevainc.com/" className="inline-block bg-gradient-to-r from-purple-600 to-blue-600 text-white px-12 py-4 rounded-lg font-semibold text-lg hover:from-purple-700 hover:to-blue-700 transition-all transform hover:scale-105 card-shadow">
-                    Learn More About CodeLocker
-                  </a>
-                  <div>
-                    <button onClick={() => {setShowResults(false); window.scrollTo(0, 0);}} className="text-purple-600 hover:text-purple-700 font-semibold">
-                      ← Retake Assessment
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {currentTab === 'frameworks' && (
-              <div className="space-y-8">
-                <div className="text-center mb-12">
-                  <h1 className="text-4xl font-bold text-gray-900 mb-4">Industry Frameworks & Standards</h1>
-                  <p className="text-xl text-gray-600">Comprehensive guide to supply chain security frameworks</p>
-                </div>
-
-                <div className="bg-white border-2 border-gray-200 rounded-lg p-8 card-shadow">
-                  <h2 className="text-2xl font-bold text-gray-900 mb-6">NIST SP 800-218: Secure Software Development Framework (SSDF)</h2>
-                  <p className="text-gray-700 mb-4">
-                    NIST provides foundational recommendations for mitigating software vulnerabilities throughout the Secure Development Lifecycle (SDL). The framework emphasizes integrating security into every phase of software development.
-                  </p>
-                  <div className="bg-blue-50 border border-blue-200 rounded p-4">
-                    <h3 className="font-bold text-blue-900 mb-2">Key Practices:</h3>
-                    <ul className="space-y-1 text-sm text-gray-700">
-                      <li>• Prepare the Organization (PO) - Establish secure development infrastructure</li>
-                      <li>• Protect the Software (PS) - Safeguard all components from tampering</li>
-                      <li>• Produce Well-Secured Software (PW) - Build security into the software itself</li>
-                      <li>• Respond to Vulnerabilities (RV) - Quickly address discovered flaws</li>
-                    </ul>
-                  </div>
-                </div>
-
-                <div className="bg-white border-2 border-gray-200 rounded-lg p-8 card-shadow">
-                  <h2 className="text-2xl font-bold text-gray-900 mb-6">SLSA: Supply-chain Levels for Software Artifacts</h2>
-                  <p className="text-gray-700 mb-4">
-                    SLSA establishes progressive levels to ensure artifact integrity and provenance, preventing unauthorized tampering during build and distribution phases.
-                  </p>
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    {[
-                      {level: 0, title: "No guarantees", desc: "Build process not documented"},
-                      {level: 1, title: "Build process exists", desc: "Provenance showing how artifact was built"},
-                      {level: 2, title: "Tamper resistance", desc: "Signed provenance, version control"},
-                      {level: 3, title: "Extra resistance", desc: "Hardened builds, non-falsifiable provenance"}
-                    ].map(item => (
-                      <div key={item.level} className="bg-gradient-to-br from-green-50 to-white border-2 border-green-200 rounded p-4">
-                        <div className="text-xl font-bold text-green-700 mb-1">Level {item.level}</div>
-                        <div className="font-semibold text-gray-900 mb-2">{item.title}</div>
-                        <div className="text-sm text-gray-600">{item.desc}</div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="bg-white border-2 border-gray-200 rounded-lg p-8 card-shadow">
-                  <h2 className="text-2xl font-bold text-gray-900 mb-6">SAFECode Fundamental Practices</h2>
-                  <p className="text-gray-700 mb-4">
-                    SAFECode integrates proven principles from member companies to build security culture. These aren't theoretical—they're battle-tested practices from organizations that ship software at scale.
-                  </p>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {[
-                      {principle: "Least Privilege", desc: "Users and programs operate with minimum necessary permissions"},
-                      {principle: "Defense in Depth", desc: "Layered defenses resist attack even if single feature fails"},
-                      {principle: "Economy of Mechanism", desc: "Keep designs simple to reduce attack surface"},
-                      {principle: "Complete Mediation", desc: "Verify every access; no implicit trust"},
-                      {principle: "Fail-Safe Defaults", desc: "Default to secure state; require explicit enabling"},
-                      {principle: "Psychological Acceptability", desc: "Easy to use correctly by default"}
-                    ].map((item, idx) => (
-                      <div key={idx} className="bg-purple-50 border border-purple-200 rounded p-4">
-                        <div className="font-bold text-purple-900 mb-1">{item.principle}</div>
-                        <div className="text-sm text-gray-700">{item.desc}</div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="bg-white border-2 border-gray-200 rounded-lg p-8 card-shadow">
-                  <h2 className="text-2xl font-bold text-gray-900 mb-6">CISA KEV Catalog</h2>
-                  <p className="text-gray-700 mb-4">
-                    The Known Exploited Vulnerabilities (KEV) catalog is the authoritative source of vulnerabilities actively exploited in the wild. Organizations should prioritize patching these above all others.
-                  </p>
-                  <div className="bg-red-50 border border-red-200 rounded p-4">
-                    <h3 className="font-bold text-red-900 mb-2">Top Attack Patterns in KEV:</h3>
-                    <ul className="space-y-1 text-sm text-gray-700">
-                      <li>• <strong>Remote Code Execution (RCE):</strong> Attackers execute arbitrary commands (highest severity)</li>
-                      <li>• <strong>Privilege Escalation:</strong> Gaining admin/system credentials after initial access</li>
-                      <li>• <strong>Authentication Bypass:</strong> Circumventing login mechanisms</li>
-                      <li>• <strong>SQL Injection:</strong> Manipulating database queries to extract data</li>
-                    </ul>
-                  </div>
-                </div>
-
-                <div className="text-center">
-                  <a href="https://codelocker.zevainc.com/" className="inline-block bg-gradient-to-r from-purple-600 to-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:from-purple-700 hover:to-blue-700 transition-all card-shadow">
-                    See How CodeLocker Implements These Frameworks
-                  </a>
-                </div>
-              </div>
-            )}
-
-            {currentTab === 'research' && (
-              <div className="space-y-8">
-                <div className="text-center mb-12">
-                  <h1 className="text-4xl font-bold text-gray-900 mb-4">Supply Chain Security Research</h1>
-                  <p className="text-xl text-gray-600">Data-driven insights from 2025 industry reports</p>
-                </div>
-
-                <div className="bg-gradient-to-br from-red-50 to-white border-2 border-red-200 rounded-lg p-8 card-shadow">
-                  <h2 className="text-2xl font-bold text-red-900 mb-4">The $4.91M Question</h2>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                    <div className="text-center">
-                      <div className="text-4xl font-bold text-red-700">$4.91M</div>
-                      <div className="text-sm text-gray-600 mt-2">Average supply chain breach cost (global)</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-4xl font-bold text-red-700">$10.22M</div>
-                      <div className="text-sm text-gray-600 mt-2">US average supply chain breach</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-4xl font-bold text-red-700">+227K</div>
-                      <div className="text-sm text-gray-600 mt-2">Cost amplification from supply chain vector</div>
-                    </div>
-                  </div>
-                  <p className="text-gray-700 text-sm">Source: IBM Cost of a Data Breach Report 2025</p>
-                </div>
-
-                <div className="bg-white border-2 border-gray-200 rounded-lg p-8 card-shadow">
-                  <h2 className="text-2xl font-bold text-gray-900 mb-6">Cost Mitigation Factors</h2>
-                  <div className="space-y-3">
-                    {[
-                      {factor: "DevSecOps approach", savings: "$227,192", color: "purple"},
-                      {factor: "AI-driven security insights", savings: "$223,503", color: "blue"},
-                      {factor: "Security analytics (SIEM)", savings: "$212,044", color: "green"},
-                      {factor: "Encryption", savings: "$208,087", color: "teal"},
-                      {factor: "Incident response automation", savings: "$201,203", color: "indigo"},
-                      {factor: "Employee security training", savings: "$192,266", color: "pink"}
-                    ].map((item, idx) => (
-                      <div key={idx} className="flex items-center justify-between bg-gray-50 px-4 py-3 rounded">
-                        <span className="font-semibold text-gray-800">{item.factor}</span>
-                        <span className={`text-${item.color}-700 font-bold`}>{item.savings}</span>
-                      </div>
-                    ))}
-                  </div>
-                  <p className="text-gray-700 text-sm mt-4">Source: IBM Cost of a Data Breach Report 2025</p>
-                </div>
-
-                <div className="bg-white border-2 border-gray-200 rounded-lg p-8 card-shadow">
-                  <h2 className="text-2xl font-bold text-gray-900 mb-6">The Escalating Threat</h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="bg-orange-50 border border-orange-200 rounded p-4">
-                      <div className="text-3xl font-bold text-orange-700 mb-2">73%</div>
-                      <div className="text-sm text-gray-700">Increase in malicious open-source packages (ReversingLabs 2024)</div>
-                    </div>
-                    <div className="bg-orange-50 border border-orange-200 rounded p-4">
-                      <div className="text-3xl font-bold text-orange-700 mb-2">90%</div>
-                      <div className="text-sm text-gray-700">Of malicious packages found on npm registry</div>
-                    </div>
-                    <div className="bg-orange-50 border border-orange-200 rounded p-4">
-                      <div className="text-3xl font-bold text-orange-700 mb-2">2x</div>
-                      <div className="text-sm text-gray-700">Increase in supply chain attacks (2021-2023, Sonatype)</div>
-                    </div>
-                    <div className="bg-orange-50 border border-orange-200 rounded p-4">
-                      <div className="text-3xl font-bold text-orange-700 mb-2">88%</div>
-                      <div className="text-sm text-gray-700">Codebases with vulnerable open-source components (Synopsys 2023)</div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-white border-2 border-gray-200 rounded-lg p-8 card-shadow">
-                  <h2 className="text-2xl font-bold text-gray-900 mb-6">Notable Supply Chain Attacks</h2>
-                  
-                  <div className="space-y-6">
-                    <div className="border-l-4 border-red-500 pl-4">
-                      <h3 className="font-bold text-gray-900 text-lg mb-1">SolarWinds (2020)</h3>
-                      <p className="text-gray-700 text-sm mb-2">Russian state-sponsored actors compromised SolarWinds' Orion build system, pushing malicious updates to 18,000+ customers including Fortune 500 companies and 9 federal agencies.</p>
-                      <div className="text-sm text-red-700 font-semibold">Impact: $90M+ remediation, 9 months undetected</div>
-                    </div>
-
-                    <div className="border-l-4 border-orange-500 pl-4">
-                      <h3 className="font-bold text-gray-900 text-lg mb-1">Log4Shell (2021)</h3>
-                      <p className="text-gray-700 text-sm mb-2">Zero-day vulnerability in Log4j affected hundreds of millions of devices worldwide. Attackers exploited RCE vulnerability to gain control of systems.</p>
-                      <div className="text-sm text-orange-700 font-semibold">Impact: Billions in global remediation costs</div>
-                    </div>
-
-                    <div className="border-l-4 border-yellow-500 pl-4">
-                      <h3 className="font-bold text-gray-900 text-lg mb-1">XZ Utils Backdoor (2024)</h3>
-                      <p className="text-gray-700 text-sm mb-2">Multi-year social engineering campaign where attacker gained maintainer access to inject backdoor into compression library used across Linux distributions.</p>
-                      <div className="text-sm text-yellow-700 font-semibold">Impact: Caught before widespread deployment, showcased human-layer vulnerability</div>
-                    </div>
-
-                    <div className="border-l-4 border-purple-500 pl-4">
-                      <h3 className="font-bold text-gray-900 text-lg mb-1">3CX VoIP Attack (2023-2024)</h3>
-                      <p className="text-gray-700 text-sm mb-2">Hackers compromised 3CX's VoIP software via legitimate updates, affecting 600,000+ organizations globally.</p>
-                      <div className="text-sm text-purple-700 font-semibold">Impact: Infrastructure rebuilds required for many victims</div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="text-center">
-                  <a href="https://codelocker.zevainc.com/" className="inline-block bg-gradient-to-r from-purple-600 to-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:from-purple-700 hover:to-blue-700 transition-all card-shadow">
-                    Protect Your Organization with CodeLocker
-                  </a>
-                </div>
-              </div>
-            )}
-          </main>
-
-          <footer className="bg-gray-900 text-white mt-16">
-            <div className="max-w-7xl mx-auto px-6 py-8">
-              <div className="text-center">
-                <p className="text-sm text-gray-400">© 2026 Zeva Inc. All rights reserved.</p>
-                <p className="mt-2 text-xs text-gray-500">Columbia MSBA Capstone Project</p>
-              </div>
-            </div>
-          </footer>
+  return (
+    <div>
+      <div className="header">
+        <Logo/>
+        <div style={{display:'flex',alignItems:'center',gap:10}}>
+          {screen==='results' && <button className="btn btn-ghost" style={{fontSize:13,padding:'7px 14px'}} onClick={restart}>Retake</button>}
+          <a href="index.html" className="back-link">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+            Back to Home
+          </a>
         </div>
-      );
-    };
+      </div>
+      {screen==='intro' && <IntroScreen onStart={start}/>}
+      {screen==='assessment' && <AssessmentScreen answers={answers} onAnswer={answer} currentDomainIdx={domainIdx} onNext={next} onBack={back} onFinish={finish}/>}
+      {screen==='results' && <ResultsScreen answers={answers}/>}
+    </div>
+  );
+}
 
-    const root = ReactDOM.createRoot(document.getElementById('root'));
-    root.render(<AssessmentTool />);
-  </script>
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
 </body>
 </html>
