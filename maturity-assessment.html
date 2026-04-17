@@ -24,6 +24,20 @@
     .btn-primary:disabled { background: #bfdbfe; color: #93c5fd; cursor: not-allowed; }
     .btn-ghost { background: rgba(255,255,255,0.15); color: #fff; border: 1px solid rgba(255,255,255,0.4); }
     .btn-ghost:hover { background: rgba(255,255,255,0.25); color: #fff; }
+    .nav-btn { padding: 7px 16px; border-radius: 6px; font-family: 'IBM Plex Sans', sans-serif; font-weight: 600; font-size: 13px; cursor: pointer; border: 1px solid rgba(255,255,255,0.4); background: rgba(255,255,255,0.12); color: #fff; transition: all 0.15s; }
+    .nav-btn:hover { background: rgba(255,255,255,0.25); }
+    .nav-btn.active { background: #fff; color: #6d28d9; border-color: #fff; }
+    .fw-card { background: #fff; border: 2px solid #e5e7eb; border-radius: 8px; padding: 28px; margin-bottom: 16px; }
+    .fw-card h3 { font-size: 18px; font-weight: 700; color: #111827; margin-bottom: 10px; }
+    .fw-pill { display: inline-block; padding: 3px 10px; border-radius: 4px; font-size: 11px; font-weight: 600; margin: 2px; }
+    .fw-pill-blue { background: #eef2ff; color: #4338ca; border: 1px solid #c7d2fe; }
+    .fw-pill-green { background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; }
+    .fw-pill-purple { background: #f5f3ff; color: #7c3aed; border: 1px solid #c4b5fd; }
+    .fw-pill-red { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+    .fw-pill-amber { background: #fffbeb; color: #d97706; border: 1px solid #fde68a; }
+    .stat-card { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px; text-align: center; }
+    .stat-num { font-size: 36px; font-weight: 700; line-height: 1; margin-bottom: 6px; }
+    .attack-card { border-left: 4px solid; padding: 16px 20px; margin-bottom: 14px; background: #f9fafb; border-radius: 0 8px 8px 0; }
     .btn-lg { padding: 15px 36px; font-size: 16px; }
     .progress-track { background: #e5e7eb; border-radius: 4px; height: 5px; }
     .progress-fill { height: 100%; background: #3b82f6; border-radius: 4px; transition: width 0.3s ease; }
@@ -63,7 +77,7 @@
     .priority-item { display: flex; align-items: flex-start; gap: 14px; padding: 14px 0; border-bottom: 1px solid #f3f4f6; }
     .priority-rank { width: 28px; height: 28px; border-radius: 50%; background: #f3f4f6; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #9ca3af; flex-shrink: 0; margin-top: 2px; }
     .priority-rank.top { background: #dbeafe; color: #2563eb; }
-    @media (max-width: 600px) { .grid2 { grid-template-columns: 1fr; } .risk-num { font-size: 32px; } .header { flex-wrap: wrap; gap: 8px; } }
+    @media (max-width: 600px) { .grid2 { grid-template-columns: 1fr; } .risk-num { font-size: 32px; } .header { flex-wrap: wrap; gap: 8px; } .nav-btn { font-size: 12px; padding: 5px 10px; } .stat-num { font-size: 28px; } }
   </style>
 </head>
 <body>
@@ -705,10 +719,285 @@ function ResultsScreen({ answers, companyName }) {
   );
 }
 
+function FrameworksScreen() {
+  return (
+    <div className="page-wrap" style={{paddingTop:48}}>
+      <div style={{textAlign:'center',marginBottom:40}}>
+        <div style={{fontSize:11,fontWeight:600,color:'#6b7280',letterSpacing:'0.08em',textTransform:'uppercase',marginBottom:8}}>REFERENCE</div>
+        <h1 style={{fontSize:32,fontWeight:700,color:'#111827',marginBottom:10}}>Industry Frameworks & Standards</h1>
+        <p style={{fontSize:16,color:'#6b7280',maxWidth:600,margin:'0 auto'}}>The eight frameworks referenced across all 36 assessment questions, and what each one actually covers.</p>
+      </div>
+
+      <div className="fw-card">
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',flexWrap:'wrap',gap:8,marginBottom:12}}>
+          <h3 style={{margin:0}}>NIST SP 800-218: Secure Software Development Framework (SSDF)</h3>
+          <span className="fw-pill fw-pill-blue">Primary framework</span>
+        </div>
+        <p style={{fontSize:14,color:'#4b5563',marginBottom:14}}>SSDF covers how to build software securely from the start. It organizes recommendations into four practice groups that apply throughout the development lifecycle, from setting up the organization to responding when things go wrong.</p>
+        <div style={{background:'#eef2ff',border:'1px solid #c7d2fe',borderRadius:6,padding:16}}>
+          <div style={{fontSize:13,fontWeight:600,color:'#4338ca',marginBottom:8}}>Practice groups</div>
+          <div style={{fontSize:13,color:'#4b5563',lineHeight:1.7}}>
+            Prepare the Organization (PO) covers secure development infrastructure. Protect the Software (PS) is about safeguarding components from tampering. Produce Well-Secured Software (PW) means building security into the code itself. Respond to Vulnerabilities (RV) handles disclosed flaws and patches.
+          </div>
+        </div>
+        <div style={{marginTop:10,fontSize:12,color:'#9ca3af'}}>Used in 27 of 36 questions across all 8 domains</div>
+      </div>
+
+      <div className="fw-card">
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',flexWrap:'wrap',gap:8,marginBottom:12}}>
+          <h3 style={{margin:0}}>NIST SP 800-161r1: Cybersecurity Supply Chain Risk Management (C-SCRM)</h3>
+          <span className="fw-pill fw-pill-blue">Updated Nov 2024</span>
+        </div>
+        <p style={{fontSize:14,color:'#4b5563',marginBottom:14}}>Where SSDF tells you how to write secure code, SP 800-161r1 tells you how to manage supply chain risk as an organizational discipline. It covers strategy, governance, vendor assessments, and multi-level risk management. Now a GSA OASIS+ contract requirement and part of NIST SP 800-171 Rev 3 compliance.</p>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(200px,1fr))',gap:10,marginTop:12}}>
+          {[{t:'Enterprise Level',d:'Strategy, policy, and budget allocation'},{t:'Mission/Business Level',d:'Program management and vendor oversight'},{t:'Operational Level',d:'System-level controls and monitoring'}].map((item,i)=>(
+            <div key={i} style={{background:'#f0fdf4',border:'1px solid #a7f3d0',borderRadius:6,padding:12}}>
+              <div style={{fontSize:13,fontWeight:600,color:'#065f46',marginBottom:4}}>{item.t}</div>
+              <div style={{fontSize:12,color:'#4b5563'}}>{item.d}</div>
+            </div>
+          ))}
+        </div>
+        <div style={{marginTop:10,fontSize:12,color:'#9ca3af'}}>Used in 10 questions, primarily Domains 1, 6, 8</div>
+      </div>
+
+      <div className="fw-card">
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',flexWrap:'wrap',gap:8,marginBottom:12}}>
+          <h3 style={{margin:0}}>SLSA: Supply-chain Levels for Software Artifacts</h3>
+          <span className="fw-pill fw-pill-green">Build integrity</span>
+        </div>
+        <p style={{fontSize:14,color:'#4b5563',marginBottom:14}}>SLSA defines four progressive levels for build and artifact integrity. Each level adds guarantees about where an artifact came from and whether it was tampered with. It was designed specifically in response to build-pipeline attacks like SolarWinds.</p>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(140px,1fr))',gap:8}}>
+          {[{l:0,n:'No guarantees',d:'Build process undocumented'},{l:1,n:'Build exists',d:'Provenance showing how artifact was built'},{l:2,n:'Tamper resistance',d:'Signed provenance, hosted builds'},{l:3,n:'Hardened builds',d:'Hermetic, non-falsifiable provenance'}].map(item=>(
+            <div key={item.l} style={{background:'#f0fdf4',border:'1px solid #a7f3d0',borderRadius:6,padding:12}}>
+              <div style={{fontSize:16,fontWeight:700,color:'#059669'}}>Level {item.l}</div>
+              <div style={{fontSize:12,fontWeight:600,color:'#111827',margin:'4px 0'}}>{item.n}</div>
+              <div style={{fontSize:11,color:'#6b7280'}}>{item.d}</div>
+            </div>
+          ))}
+        </div>
+        <div style={{marginTop:10,fontSize:12,color:'#9ca3af'}}>Used in 11 questions, primarily Domains 2, 3, 4</div>
+      </div>
+
+      <div className="fw-card">
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',flexWrap:'wrap',gap:8,marginBottom:12}}>
+          <h3 style={{margin:0}}>SAFECode Fundamental Practices</h3>
+          <span className="fw-pill fw-pill-purple">Security culture</span>
+        </div>
+        <p style={{fontSize:14,color:'#4b5563',marginBottom:14}}>SAFECode collects practices that actually work at scale, based on experience from member companies that ship real software. These are design principles, not checklists.</p>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
+          {[{p:'Least Privilege',d:'Users and programs get only the minimum permissions they need'},{p:'Defense in Depth',d:'Layered defenses so the system holds even if one layer fails'},{p:'Economy of Mechanism',d:'Keep designs simple to reduce attack surface'},{p:'Complete Mediation',d:'Verify every access request. No implicit trust.'},{p:'Fail-Safe Defaults',d:'Default to secure. Require explicit enabling.'},{p:'Psychological Acceptability',d:'Make security easy to use correctly'}].map((item,i)=>(
+            <div key={i} style={{background:'#f5f3ff',border:'1px solid #c4b5fd',borderRadius:6,padding:12}}>
+              <div style={{fontSize:13,fontWeight:600,color:'#5b21b6',marginBottom:3}}>{item.p}</div>
+              <div style={{fontSize:12,color:'#4b5563'}}>{item.d}</div>
+            </div>
+          ))}
+        </div>
+        <div style={{marginTop:10,fontSize:12,color:'#9ca3af'}}>Used in 14 questions across Domains 1, 5, 6, 7</div>
+      </div>
+
+      <div className="fw-card">
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',flexWrap:'wrap',gap:8,marginBottom:12}}>
+          <h3 style={{margin:0}}>OWASP Top 10 CI/CD Security Risks</h3>
+          <span className="fw-pill fw-pill-amber">Pipeline threats</span>
+        </div>
+        <p style={{fontSize:14,color:'#4b5563',marginBottom:14}}>The definitive catalog of CI/CD-specific attack vectors. Each risk is grounded in real incidents: SolarWinds, Codecov, the PHP backdoor, dependency confusion attacks on major npm packages. If you run a build pipeline, these are the things attackers will try.</p>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:6}}>
+          {['Insufficient flow control','Inadequate identity & access management','Dependency chain abuse','Poisoned pipeline execution (PPE)','Insufficient pipeline-based access controls','Insufficient credential hygiene','Insecure system configuration','Ungoverned 3rd party services','Improper artifact integrity validation','Insufficient logging and visibility'].map((r,i)=>(
+            <div key={i} style={{fontSize:12,color:'#4b5563',padding:'6px 10px',background:'#fffbeb',border:'1px solid #fde68a',borderRadius:4}}>
+              <span style={{fontWeight:600,color:'#92400e',marginRight:6}}>SEC-{i+1}</span>{r}
+            </div>
+          ))}
+        </div>
+        <div style={{marginTop:10,fontSize:12,color:'#9ca3af'}}>Used in 11 questions, primarily Domains 3, 4, 5</div>
+      </div>
+
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:16}}>
+        <div className="fw-card">
+          <h3 style={{fontSize:15}}>EO 14028 & CISA Attestation</h3>
+          <p style={{fontSize:13,color:'#4b5563',marginBottom:8}}>Executive Order 14028 (May 2021) mandated that software vendors selling to the federal government attest to secure development practices. It made SBOM generation a contractual requirement and drove adoption of SSDF across the industry.</p>
+          <span className="fw-pill fw-pill-red">Regulatory</span>
+          <div style={{marginTop:8,fontSize:12,color:'#9ca3af'}}>3 questions in Domains 1, 2, 6</div>
+        </div>
+        <div className="fw-card">
+          <h3 style={{fontSize:15}}>NIST CSF 2.0</h3>
+          <p style={{fontSize:13,color:'#4b5563',marginBottom:8}}>The Cybersecurity Framework provides the overarching Govern, Identify, Protect, Detect, Respond, Recover structure. Our assessment maps governance questions to GV, detection to DE, and response to RS/RC.</p>
+          <span className="fw-pill fw-pill-blue">Risk management</span>
+          <div style={{marginTop:8,fontSize:12,color:'#9ca3af'}}>7 questions in Domains 1, 8</div>
+        </div>
+        <div className="fw-card">
+          <h3 style={{fontSize:15}}>CIS Controls v8</h3>
+          <p style={{fontSize:13,color:'#4b5563',marginBottom:8}}>The Center for Internet Security's prioritized security controls. The DBIR references these directly. We map Controls 5 and 6 (account and access management), 14 (security awareness training), and 17 (incident response) to our assessment.</p>
+          <span className="fw-pill fw-pill-green">Operational</span>
+          <div style={{marginTop:8,fontSize:12,color:'#9ca3af'}}>7 questions in Domains 5, 7, 8</div>
+        </div>
+      </div>
+
+      <div style={{textAlign:'center',marginTop:36}}>
+        <a href="https://codelocker.zevainc.com/" className="btn-cta">See How CodeLocker Implements These Frameworks</a>
+      </div>
+      <div style={{textAlign:'center',marginTop:12}}>
+        <p style={{fontSize:11,color:'#9ca3af'}}>All framework references are mapped to specific questions in the assessment. Take the assessment to see which controls your organization has in place.</p>
+      </div>
+    </div>
+  );
+}
+
+function ResearchScreen() {
+  return (
+    <div className="page-wrap" style={{paddingTop:48}}>
+      <div style={{textAlign:'center',marginBottom:40}}>
+        <div style={{fontSize:11,fontWeight:600,color:'#6b7280',letterSpacing:'0.08em',textTransform:'uppercase',marginBottom:8}}>DATA</div>
+        <h1 style={{fontSize:32,fontWeight:700,color:'#111827',marginBottom:10}}>Supply Chain Security Research</h1>
+        <p style={{fontSize:16,color:'#6b7280',maxWidth:600,margin:'0 auto'}}>Key findings from the four data sources behind our scoring methodology and risk calculations.</p>
+      </div>
+
+      <div className="fw-card" style={{background:'#fef2f2',borderColor:'#fecaca'}}>
+        <h3 style={{color:'#991b1b',fontSize:20,marginBottom:16}}>The cost picture</h3>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(180px,1fr))',gap:14}}>
+          <div className="stat-card" style={{background:'#fff'}}>
+            <div className="stat-num" style={{color:'#dc2626'}}>$4.91M</div>
+            <div style={{fontSize:12,color:'#6b7280'}}>Average supply chain breach cost</div>
+          </div>
+          <div className="stat-card" style={{background:'#fff'}}>
+            <div className="stat-num" style={{color:'#dc2626'}}>$10.22M</div>
+            <div style={{fontSize:12,color:'#6b7280'}}>US average breach cost</div>
+          </div>
+          <div className="stat-card" style={{background:'#fff'}}>
+            <div className="stat-num" style={{color:'#dc2626'}}>30%</div>
+            <div style={{fontSize:12,color:'#6b7280'}}>Breaches involving third parties (2x YoY)</div>
+          </div>
+          <div className="stat-card" style={{background:'#fff'}}>
+            <div className="stat-num" style={{color:'#dc2626'}}>52%</div>
+            <div style={{fontSize:12,color:'#6b7280'}}>Insurance claims from third-party breaches</div>
+          </div>
+        </div>
+        <p style={{fontSize:11,color:'#9ca3af',marginTop:12}}>IBM Cost of a Data Breach Report 2025, Coalition Cyber Claims Report 2025</p>
+      </div>
+
+      <div className="fw-card">
+        <h3>What actually reduces breach costs</h3>
+        <p style={{fontSize:14,color:'#4b5563',marginBottom:16}}>IBM analyzed 30 factors that raise or lower the average $4.88M breach cost. Here are the ones most relevant to software supply chain security, ranked by dollar impact.</p>
+        <div style={{display:'flex',flexDirection:'column',gap:6}}>
+          {[
+            {f:'DevSecOps approach',v:'-$227,192',c:'#7c3aed'},
+            {f:'AI and ML-driven security insights',v:'-$223,503',c:'#2563eb'},
+            {f:'Security analytics / SIEM',v:'-$212,061',c:'#059669'},
+            {f:'Encryption',v:'-$208,087',c:'#0891b2'},
+            {f:'Employee security training',v:'-$192,266',c:'#d97706'},
+            {f:'AI governance technology',v:'-$191,893',c:'#4338ca'},
+            {f:'Identity and access management',v:'-$189,838',c:'#be185d'},
+            {f:'Code signing and SBOM',v:'-$150K to -$300K',c:'#059669'}
+          ].map((item,i)=>(
+            <div key={i} style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'10px 14px',background:'#f9fafb',borderRadius:6}}>
+              <span style={{fontSize:14,fontWeight:500,color:'#1f2937'}}>{item.f}</span>
+              <span style={{fontSize:14,fontWeight:700,color:item.c}}>{item.v}</span>
+            </div>
+          ))}
+        </div>
+        <div style={{marginTop:14,padding:'12px 14px',background:'#fef2f2',border:'1px solid #fecaca',borderRadius:6}}>
+          <div style={{fontSize:13,fontWeight:600,color:'#991b1b',marginBottom:4}}>Top cost amplifiers</div>
+          <div style={{fontSize:13,color:'#4b5563'}}>Supply chain breach (+$227K), security system complexity (+$208K), shadow AI (+$200K), security skills shortage (+$173K), noncompliance with regulations (+$174K)</div>
+        </div>
+        <p style={{fontSize:11,color:'#9ca3af',marginTop:12}}>IBM Cost of a Data Breach Report 2025, Figure 39</p>
+      </div>
+
+      <div className="fw-card">
+        <h3>The threat landscape in numbers</h3>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginTop:12}}>
+          <div className="stat-card">
+            <div className="stat-num" style={{color:'#ea580c'}}>73%</div>
+            <div style={{fontSize:12,color:'#6b7280'}}>Rise in malicious open-source packages</div>
+            <div style={{fontSize:11,color:'#9ca3af',marginTop:4}}>ReversingLabs 2024</div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-num" style={{color:'#ea580c'}}>94 days</div>
+            <div style={{fontSize:12,color:'#6b7280'}}>Median time to remediate a leaked secret on GitHub</div>
+            <div style={{fontSize:11,color:'#9ca3af',marginTop:4}}>Verizon DBIR 2025</div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-num" style={{color:'#ea580c'}}>44%</div>
+            <div style={{fontSize:12,color:'#6b7280'}}>Of all breaches involved ransomware (+37% YoY)</div>
+            <div style={{fontSize:11,color:'#9ca3af',marginTop:4}}>Verizon DBIR 2025</div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-num" style={{color:'#ea580c'}}>80 days</div>
+            <div style={{fontSize:12,color:'#6b7280'}}>Faster containment with extensive AI/automation</div>
+            <div style={{fontSize:11,color:'#9ca3af',marginTop:4}}>IBM 2025</div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-num" style={{color:'#ea580c'}}>63%</div>
+            <div style={{fontSize:12,color:'#6b7280'}}>Organizations lacking AI governance policies</div>
+            <div style={{fontSize:11,color:'#9ca3af',marginTop:4}}>IBM 2025</div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-num" style={{color:'#ea580c'}}>88%</div>
+            <div style={{fontSize:12,color:'#6b7280'}}>Codebases with known vulnerable OSS components</div>
+            <div style={{fontSize:11,color:'#9ca3af',marginTop:4}}>Synopsys OSSRA 2023</div>
+          </div>
+        </div>
+      </div>
+
+      <div className="fw-card">
+        <h3>Supply chain attacks that shaped the assessment</h3>
+        <p style={{fontSize:14,color:'#4b5563',marginBottom:16}}>Each question in the assessment traces back to a documented attack vector. These four incidents directly informed the maturity levels and domain structure.</p>
+        
+        <div className="attack-card" style={{borderColor:'#ef4444'}}>
+          <div style={{fontSize:16,fontWeight:700,color:'#111827',marginBottom:4}}>SolarWinds (2020)</div>
+          <p style={{fontSize:13,color:'#4b5563',marginBottom:6}}>Russian state-sponsored actors compromised the Orion build pipeline, pushing signed malicious updates to 18,000+ organizations including federal agencies. The backdoor went undetected for 9 months. Every standard integrity check passed because the malware was signed with SolarWinds' own certificate.</p>
+          <div style={{fontSize:12,fontWeight:600,color:'#dc2626'}}>Assessment domains affected: Build Pipeline Integrity, Code Signing, Detection & Response</div>
+        </div>
+
+        <div className="attack-card" style={{borderColor:'#f97316'}}>
+          <div style={{fontSize:16,fontWeight:700,color:'#111827',marginBottom:4}}>Log4Shell (2021)</div>
+          <p style={{fontSize:13,color:'#4b5563',marginBottom:6}}>A critical vulnerability in Log4j, a Java logging library buried deep as a transitive dependency in thousands of enterprise systems. Within 72 hours of disclosure, attackers launched over 846,000 exploitation attempts. Most organizations had no idea they were running it.</p>
+          <div style={{fontSize:12,fontWeight:600,color:'#ea580c'}}>Assessment domains affected: Software Composition & Dependency Management</div>
+        </div>
+
+        <div className="attack-card" style={{borderColor:'#eab308'}}>
+          <div style={{fontSize:16,fontWeight:700,color:'#111827',marginBottom:4}}>XZ Utils (2024)</div>
+          <p style={{fontSize:13,color:'#4b5563',marginBottom:6}}>An attacker spent two years building social trust in the XZ Utils project before inserting a backdoor. No scanner caught it. No SBOM flagged it. A single engineer noticed a performance anomaly. This was a pure social engineering attack on open source maintainer trust.</p>
+          <div style={{fontSize:12,fontWeight:600,color:'#ca8a04'}}>Assessment domains affected: Third-Party Vendor Risk, Security Culture & Training</div>
+        </div>
+
+        <div className="attack-card" style={{borderColor:'#8b5cf6'}}>
+          <div style={{fontSize:16,fontWeight:700,color:'#111827',marginBottom:4}}>Change Healthcare / CDK Global (2024)</div>
+          <p style={{fontSize:13,color:'#4b5563',marginBottom:6}}>Two vendor compromises that cascaded across entire industries. Change Healthcare's ransomware attack disrupted 90%+ of US pharmacies with estimated costs of $2.87 billion. CDK Global's attack caused $1 billion in losses across car dealerships. Coalition data shows 52% of insurance claims came from third-party breaches like these.</p>
+          <div style={{fontSize:12,fontWeight:600,color:'#7c3aed'}}>Assessment domains affected: Third-Party Vendor Risk, Detection & Response</div>
+        </div>
+      </div>
+
+      <div className="fw-card">
+        <h3>Data sources</h3>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginTop:12}}>
+          {[
+            {name:'IBM Cost of a Data Breach Report 2025',scope:'3,500+ organizations across 16 countries, 30 cost factors analyzed'},
+            {name:'Verizon Data Breach Investigations Report 2025',scope:'22,052 incidents, 12,195 confirmed breaches, 139 countries'},
+            {name:'Coalition Cyber Claims Report 2025',scope:'Real insurance claims data, third-party risk aggregation events'},
+            {name:'CISA Cost of Cyber Incidents Study',scope:'Cross-validated incident costs, materiality analysis, cost-to-revenue ratios'}
+          ].map((src,i)=>(
+            <div key={i} style={{background:'#f9fafb',border:'1px solid #e5e7eb',borderRadius:6,padding:14}}>
+              <div style={{fontSize:13,fontWeight:600,color:'#1f2937',marginBottom:4}}>{src.name}</div>
+              <div style={{fontSize:12,color:'#6b7280'}}>{src.scope}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div style={{textAlign:'center',marginTop:36}}>
+        <a href="https://codelocker.zevainc.com/" className="btn-cta">Protect Your Organization with CodeLocker</a>
+      </div>
+      <div style={{textAlign:'center',marginTop:12}}>
+        <p style={{fontSize:11,color:'#9ca3af'}}>All dollar figures, percentages, and statistics are drawn from the four sources above. See the full assessment for how these data points map to specific maturity questions.</p>
+      </div>
+    </div>
+  );
+}
+
 function App() {
   const [screen, setScreen] = useState('intro');
   const [answers, setAnswers] = useState({});
   const [domainIdx, setDomainIdx] = useState(0);
+  const [tab, setTab] = useState('assessment');
 
   function answer(qId, level) { setAnswers(prev => ({...prev, [qId]: level})); }
   function start() { setDomainIdx(0); setScreen('assessment'); }
@@ -721,17 +1010,21 @@ function App() {
     <div>
       <div className="header">
         <Logo/>
-        <div style={{display:'flex',alignItems:'center',gap:10}}>
-          {screen==='results' && <button className="btn btn-ghost" style={{fontSize:13,padding:'7px 14px'}} onClick={restart}>Retake</button>}
+        <div style={{display:'flex',alignItems:'center',gap:8}}>
+          {screen==='results' && tab==='assessment' && <button className="btn btn-ghost" style={{fontSize:13,padding:'7px 14px'}} onClick={restart}>Retake</button>}
+          <button className={`nav-btn ${tab==='frameworks'?'active':''}`} onClick={()=>{setTab('frameworks');window.scrollTo({top:0,behavior:'smooth'});}}>Frameworks</button>
+          <button className={`nav-btn ${tab==='research'?'active':''}`} onClick={()=>{setTab('research');window.scrollTo({top:0,behavior:'smooth'});}}>Research</button>
           <a href="index.html" className="back-link">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
             Back to Home
           </a>
         </div>
       </div>
-      {screen==='intro' && <IntroScreen onStart={start}/>}
-      {screen==='assessment' && <AssessmentScreen answers={answers} onAnswer={answer} currentDomainIdx={domainIdx} onNext={next} onBack={back} onFinish={finish}/>}
-      {screen==='results' && <ResultsScreen answers={answers}/>}
+      {tab==='assessment' && screen==='intro' && <IntroScreen onStart={start}/>}
+      {tab==='assessment' && screen==='assessment' && <AssessmentScreen answers={answers} onAnswer={answer} currentDomainIdx={domainIdx} onNext={next} onBack={back} onFinish={finish}/>}
+      {tab==='assessment' && screen==='results' && <ResultsScreen answers={answers}/>}
+      {tab==='frameworks' && <FrameworksScreen onBack={()=>setTab('assessment')}/>}
+      {tab==='research' && <ResearchScreen onBack={()=>setTab('assessment')}/>}
     </div>
   );
 }
