@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NIST 800-53 Maturity Assessment - CodeLocker Defense</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'IBM Plex Sans', sans-serif; background: #f8fafc; color: #0a1628; line-height: 1.5; }
+    a { color: #2c5282; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    
+    .header {
+      background: #0a1628;
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      border-bottom: 1px solid rgba(96,165,250,0.2);
+    }
+    .header-brand { display: flex; align-items: center; gap: 16px; }
+    .header-tag {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      color: #60a5fa;
+      padding: 4px 10px;
+      border: 1px solid rgba(96,165,250,0.4);
+      border-radius: 3px;
+      text-transform: uppercase;
+    }
+    .back-link {
+      color: rgba(255,255,255,0.85);
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .back-link:hover { color: white; text-decoration: none; }
+    
+    .page-wrap { max-width: 900px; margin: 0 auto; padding: 0 24px 80px; }
+    
+    .btn {
+      padding: 12px 24px;
+      border-radius: 3px;
+      font-family: 'IBM Plex Sans', sans-serif;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      border: none;
+      transition: all 0.15s;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    .btn-primary { background: #0a1628; color: #fff; }
+    .btn-primary:hover { background: #1a3a5c; }
+    .btn-primary:disabled { background: #cbd5e1; color: #94a3b8; cursor: not-allowed; }
+    .btn-ghost { background: transparent; color: #0a1628; border: 1px solid #cbd5e1; }
+    .btn-ghost:hover { background: #f1f5f9; }
+    .btn-lg { padding: 14px 36px; font-size: 14px; }
+    
+    .intro-card {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 4px;
+      padding: 48px;
+      margin-top: 48px;
+    }
+    
+    .intro-tag {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.25em;
+      color: #2c5282;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+    }
+    
+    .intro-title {
+      font-size: 32px;
+      font-weight: 700;
+      color: #0a1628;
+      margin-bottom: 14px;
+      letter-spacing: -0.01em;
+      line-height: 1.15;
+    }
+    
+    .intro-sub {
+      font-size: 15px;
+      color: #475569;
+      line-height: 1.6;
+      margin-bottom: 32px;
+    }
+    
+    .intro-facts {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin: 32px 0;
+      padding: 24px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 4px;
+    }
+    .intro-fact-label { font-size: 11px; color: #64748b; margin-bottom: 4px; letter-spacing: 0.05em; text-transform: uppercase; }
+    .intro-fact-value { font-size: 22px; font-weight: 700; color: #0a1628; }
+    
+    .frameworks-bar {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 4px;
+      padding: 16px 20px;
+      margin-bottom: 32px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      align-items: center;
+    }
+    .frameworks-label { font-size: 11px; font-weight: 700; color: #1e40af; letter-spacing: 0.1em; text-transform: uppercase; }
+    .framework-chip { background: white; padding: 4px 10px; border-radius: 2px; font-size: 12px; color: #1e40af; border: 1px solid #bfdbfe; font-weight: 600; }
+    
+    .progress-wrap { background: white; padding: 20px 24px; border-bottom: 1px solid #e2e8f0; position: sticky; top: 62px; z-index: 50; }
+    .progress-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .progress-label { font-size: 12px; font-weight: 600; color: #64748b; letter-spacing: 0.05em; text-transform: uppercase; }
+    .progress-count { font-size: 13px; color: #0a1628; font-weight: 700; }
+    .progress-track { background: #e2e8f0; height: 4px; border-radius: 2px; overflow: hidden; }
+    .progress-fill { height: 100%; background: #2c5282; transition: width 0.3s ease; }
+    
+    .domain-header {
+      background: #0a1628;
+      color: white;
+      padding: 32px;
+      border-radius: 4px 4px 0 0;
+      margin-top: 32px;
+    }
+    .domain-tag { font-size: 11px; font-weight: 700; letter-spacing: 0.25em; color: #60a5fa; text-transform: uppercase; margin-bottom: 8px; }
+    .domain-name { font-size: 24px; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 6px; }
+    .domain-desc { font-size: 14px; color: rgba(255,255,255,0.8); line-height: 1.5; }
+    
+    .question-card {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-top: none;
+      padding: 28px;
+    }
+    .question-card:last-child { border-radius: 0 0 4px 4px; }
+    .question-card + .question-card { border-top: 1px solid #e2e8f0; }
+    
+    .q-num { font-size: 11px; font-weight: 700; letter-spacing: 0.15em; color: #2c5282; margin-bottom: 6px; }
+    .q-text { font-size: 16px; font-weight: 600; color: #0a1628; margin-bottom: 8px; line-height: 1.45; }
+    .q-controls { margin-bottom: 16px; }
+    .control-chip {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 700;
+      color: #1e40af;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      padding: 2px 8px;
+      border-radius: 2px;
+      margin-right: 6px;
+      margin-bottom: 4px;
+      letter-spacing: 0.05em;
+    }
+    
+    .level-opt {
+      display: flex;
+      gap: 14px;
+      padding: 12px 16px;
+      border: 1px solid #e2e8f0;
+      border-radius: 3px;
+      margin-bottom: 6px;
+      cursor: pointer;
+      transition: all 0.12s;
+      background: white;
+    }
+    .level-opt:hover { border-color: #2c5282; background: #f8fafc; }
+    .level-opt.selected { border-color: #2c5282; background: #eff6ff; }
+    .level-indicator {
+      width: 32px;
+      height: 32px;
+      border-radius: 3px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 700;
+      font-size: 13px;
+    }
+    .lvl-0 { background: #dc2626; }
+    .lvl-1 { background: #ea580c; }
+    .lvl-2 { background: #ca8a04; }
+    .lvl-3 { background: #16a34a; }
+    .level-body { flex: 1; }
+    .level-title { font-size: 13px; font-weight: 700; color: #0a1628; margin-bottom: 2px; }
+    .level-desc { font-size: 13px; color: #475569; line-height: 1.4; }
+    
+    .nav-row { display: flex; justify-content: space-between; margin-top: 32px; }
+    
+    /* Results */
+    .results-hero {
+      background: #0a1628;
+      color: white;
+      padding: 48px;
+      border-radius: 4px;
+      margin-top: 32px;
+      position: relative;
+      overflow: hidden;
+    }
+    .results-hero-label { font-size: 11px; font-weight: 700; letter-spacing: 0.25em; color: #60a5fa; margin-bottom: 14px; text-transform: uppercase; }
+    .results-hero-score { font-size: 72px; font-weight: 700; line-height: 1; margin-bottom: 8px; letter-spacing: -0.02em; }
+    .results-hero-level { font-size: 18px; font-weight: 700; margin-bottom: 12px; }
+    .results-hero-desc { font-size: 15px; color: rgba(255,255,255,0.8); max-width: 600px; line-height: 1.6; }
+    
+    .score-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin: 24px 0; }
+    .score-card { background: white; border: 1px solid #e2e8f0; padding: 24px; border-radius: 4px; }
+    .score-card-label { font-size: 11px; font-weight: 600; letter-spacing: 0.1em; color: #64748b; text-transform: uppercase; margin-bottom: 8px; }
+    .score-card-value { font-size: 28px; font-weight: 700; color: #0a1628; line-height: 1; margin-bottom: 4px; }
+    .score-card-foot { font-size: 12px; color: #94a3b8; }
+    
+    .domain-result {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 4px;
+      padding: 24px;
+      margin-bottom: 12px;
+    }
+    .domain-result-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .domain-result-name { font-size: 16px; font-weight: 700; color: #0a1628; }
+    .domain-result-level { font-size: 13px; font-weight: 700; padding: 4px 10px; border-radius: 2px; }
+    .lr-0 { background: #fef2f2; color: #dc2626; }
+    .lr-1 { background: #fff7ed; color: #ea580c; }
+    .lr-2 { background: #fefce8; color: #ca8a04; }
+    .lr-3 { background: #f0fdf4; color: #16a34a; }
+    
+    .bar-outer { height: 16px; background: #f1f5f9; border-radius: 2px; overflow: hidden; margin-bottom: 12px; position: relative; }
+    .bar-inner { height: 100%; transition: width 0.6s ease; }
+    .bar-target { position: absolute; top: 0; bottom: 0; left: 66.67%; width: 2px; background: #0a1628; }
+    
+    .gap-list { font-size: 13px; color: #475569; line-height: 1.6; }
+    .gap-list li { margin-left: 20px; margin-bottom: 4px; }
+    
+    .cta-box {
+      background: #0a1628;
+      color: white;
+      padding: 40px;
+      border-radius: 4px;
+      text-align: center;
+      margin-top: 32px;
+    }
+    .cta-title { font-size: 24px; font-weight: 700; margin-bottom: 10px; letter-spacing: -0.01em; }
+    .cta-desc { font-size: 15px; color: rgba(255,255,255,0.8); margin-bottom: 24px; max-width: 560px; margin-left: auto; margin-right: auto; }
+    .cta-button {
+      display: inline-block;
+      padding: 13px 32px;
+      background: white;
+      color: #0a1628;
+      font-weight: 700;
+      font-size: 14px;
+      border-radius: 3px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      transition: all 0.2s;
+    }
+    .cta-button:hover { background: #60a5fa; color: white; text-decoration: none; }
+    
+    @media (max-width: 700px) {
+      .intro-facts { grid-template-columns: 1fr; }
+      .score-grid { grid-template-columns: 1fr; }
+      .intro-card { padding: 28px; }
+    }
+  </style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState } = React;
+
+// NIST 800-53 Rev 5 control families + NIST 800-218 SSDF practices
+// Organized into 7 domains relevant to DoD software supply chain
+const DOMAINS = [
+  {
+    id: 'sr',
+    code: 'SR',
+    name: 'Supply Chain Risk Management',
+    description: 'NIST 800-53 Rev 5 SR family. Establishing and maintaining a formal supply chain risk management program aligned with C-SCRM requirements.',
+    weight: 0.18,
+    questions: [
+      {
+        id: 'sr1',
+        text: 'Does your organization have a documented Cybersecurity Supply Chain Risk Management (C-SCRM) plan covering all software suppliers?',
+        controls: ['SR-1', 'SR-2', 'NIST 800-161r1'],
+        levels: [
+          { title: 'Ad Hoc', desc: 'No formal C-SCRM plan. Supplier risk is handled case by case.' },
+          { title: 'Defined', desc: 'A basic C-SCRM plan exists but is not regularly updated or enforced.' },
+          { title: 'Managed', desc: 'Formal C-SCRM plan reviewed annually, covers all software suppliers, integrated into procurement.' },
+          { title: 'Optimized', desc: 'C-SCRM plan with continuous monitoring, multi-tier supplier assessment, automated risk scoring, and quarterly leadership review.' }
+        ]
+      },
+      {
+        id: 'sr2',
+        text: 'Do you assess suppliers against specific supply chain controls before contract award and continuously during performance?',
+        controls: ['SR-3', 'SR-5', 'SR-6'],
+        levels: [
+          { title: 'Ad Hoc', desc: 'No formal supplier assessment beyond basic procurement checks.' },
+          { title: 'Defined', desc: 'Pre-award questionnaires used. No ongoing monitoring.' },
+          { title: 'Managed', desc: 'Pre-award assessment plus annual supplier reviews. Documented risk scoring.' },
+          { title: 'Optimized', desc: 'Continuous supplier monitoring with automated alerts, multi-tier visibility, contractual audit rights exercised regularly.' }
+        ]
+      },
+      {
+        id: 'sr3',
+        text: 'Are supply chain security requirements included in contracts with software suppliers, including FAR/DFARS supply chain clauses?',
+        controls: ['SR-5', 'SR-11', 'DFARS 252.204-7012'],
+        levels: [
+          { title: 'Ad Hoc', desc: 'Standard procurement language. No specific supply chain clauses.' },
+          { title: 'Defined', desc: 'Basic cybersecurity clauses in contracts. No enforcement mechanisms.' },
+          { title: 'Managed', desc: 'FAR/DFARS compliance clauses with breach notification timelines and audit rights.' },
+          { title: 'Optimized', desc: 'Aggressive contract language including SBOM delivery, vulnerability disclosure SLAs, CMMC certification requirements, and right to terminate for security failures.' }
+        ]
+      },
+      {
+        id: 'sr4',
+        text: 'Does your organization verify the integrity of software products received from suppliers (anti-counterfeit, anti-tamper)?',
+        controls: ['SR-9', 'SR-10', 'SR-11'],
+        levels: [
+          { title: 'Ad Hoc', desc: 'Software accepted at face value. No integrity verification.' },
+          { title: 'Defined', desc: 'Hash verification for some critical software. Inconsistent application.' },
+          { title: 'Managed', desc: 'Cryptographic signature verification required for all received software.' },
+          { title: 'Optimized', desc: 'Automated signature verification, tamper-evident packaging requirements, component authenticity validation, and complex binary analysis for closed-source products.' }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'sa',
+    code: 'SA',
+    name: 'System and Services Acquisition',
+    description: 'NIST 800-53 Rev 5 SA family and NIST 800-218 (SSDF). Integrating security into the software development and acquisition lifecycle.',
+    weight: 0.17,
+    questions: [
+      {
+        id: 'sa1',
+        text: 'Is your Secure Software Development Framework (SSDF) documented and mapped to specific lifecycle activities?',
+        controls: ['SA-3', 'SA-15', 'NIST 800-218'],
+        levels: [
+          { title: 'Ad Hoc', desc: 'No formal SDLC documented. Developers choose their own practices.' },
+          { title: 'Defined', desc: 'SDLC exists on paper but is not consistently followed.' },
+          { title: 'Managed', desc: 'SDLC aligned with NIST 800-218 SSDF, enforced through tooling, reviewed annually.' },
+          { title: 'Optimized', desc: 'Full SSDF implementation with PO/PS/PW/RV practices mapped to automated gates in CI/CD, metrics tracked, continuous improvement loop.' }
+        ]
+      },
+      {
+        id: 'sa2',
+        text: 'Do you generate and maintain Software Bills of Materials (SBOMs) for all software delivered to federal customers?',
+        controls: ['SA-15', 'SR-11', 'EO 14028', 'CISA Minimum Elements'],
+        levels: [
+          { title: 'Ad Hoc', desc: 'No SBOMs generated.' },
+          { title: 'Defined', desc: 'SBOMs generated on request for some projects.' },
+          { title: 'Managed', desc: 'SBOMs generated automatically for all federal software, satisfying CISA 2025 Minimum Elements.' },
+          { title: 'Optimized', desc: 'Signed SBOMs with full transitive dependency tracking, delivered as part of standard release artifacts, with automated verification by federal customers.' }
+        ]
+      },
+      {
+        id: 'sa3',
+        text: 'Does your organization control developer access to production and build environments through least privilege?',
+        controls: ['SA-10', 'AC-2', 'AC-6'],
+        levels: [
+          { title: 'Ad Hoc', desc: 'Developers have broad access to production and build systems.' },
+          { title: 'Defined', desc: 'Role-based access exists but is not regularly reviewed or enforced.' },
+          { title: 'Managed', desc: 'RBAC with quarterly reviews. Separation of duties for build and deploy.' },
+          { title: 'Optimized', desc: 'Just-in-time privileged access with hardware MFA, continuous monitoring for anomalous access, automated de-provisioning.' }
+        ]
+      },
+      {
+        id: 'sa4',
+        text: 'Do you test software for security flaws before release using automated tools integrated into the build pipeline (SAST, DAST, SCA)?',
+        controls: ['SA-11', 'SI-10', 'NIST 800-218 PW.7/PW.8'],
+        levels: [
+          { title: 'Ad Hoc', desc: 'No automated security testing, or testing is advisory only.' },
+          { title: 'Defined', desc: 'Some security testing exists but does not block releases.' },
+          { title: 'Managed', desc: 'SAST/DAST/SCA integrated in CI/CD with blocking thresholds on critical findings.' },
+          { title: 'Optimized', desc: 'Multi-layered automated security testing, exploitability analysis, automated exception workflows, and tracked remediation SLAs.' }
+        ]
+      },
+      {
+        id: 'sa5',
+        text: 'Are software development activities conducted in isolated environments separated from general-purpose networks?',
+        controls: ['SA-8', 'SC-7', 'NIST 800-218 PO.5'],
+        levels: [
+          { title: 'Ad Hoc', desc: 'Development happens on general-purpose corporate networks.' },
+          { title: 'Defined', desc: 'Some isolation for sensitive projects, inconsistent application.' },
+          { title: 'Managed', desc: 'Dedicated development environments with network segmentation from corporate.' },
+          { title: 'Optimized', desc: 'Hermetic build environments, ephemeral build workers, air-gapped options for classified work.' }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'cm',
+    code: 'CM',
+    name: 'Configuration Management',
+    description: 'NIST 800-53 Rev 5 CM family. Maintaining baseline configurations, tracking changes, and controlling what software runs in your environment.',
+    weight: 0.13,
+    questions: [
+      {
+        id: 'cm1',
+        text: 'Do you maintain approved software inventories and block unauthorized software from executing?',
+        controls: ['CM-7', 'CM-8', 'CM-10'],
+        levels: [
+          { title: 'Ad Hoc', desc: 'No approved software list. Any software can be installed or run.' },
+          { title: 'Defined', desc: 'Software inventory maintained but not used for enforcement.' },
+          { title: 'Managed', desc: 'Approved software list enforced through endpoint controls, with exception processes.' },
+          { title: 'Optimized', desc: 'Allow-listing on all endpoints and servers, cryptographic verification of software provenance before execution.' }
+        ]
+      },
+      {
+        id: 'cm2',
+        text: 'Is every change to production software tracked through a formal configuration change control process?',
+        controls: ['CM-3', 'CM-5'],
+        levels: [
+          { title: 'Ad Hoc', desc: 'Changes happen without formal tracking or approval.' },
+          { title: 'Defined', desc: 'Change records exist but approvals are inconsistent.' },
+          { title: 'Managed', desc: 'Formal change control with documented approvals, tested rollback procedures.' },
+          { title: 'Optimized', desc: 'Cryptographically attested change records, automated compliance verification, full audit trail for federal customers.' }
+        ]
+      },
+      {
+        id: 'cm3',
+        text: 'Are code signing keys stored in Hardware Security Modules (HSMs) and access tightly controlled?',
+        controls: ['CM-14', 'SC-12', 'SC-13', 'FIPS 140-3'],
+        levels: [
+          { title: 'Ad Hoc', desc: 'Signing keys in software keystores, config files, or on developer machines.' },
+          { title: 'Defined', desc: 'Keys in cloud KMS with basic access controls.' },
+          { title: 'Managed', desc: 'HSM-backed keys (FIPS 140-2 Level 2+) with RBAC and audit logging.' },
+          { title: 'Optimized', desc: 'FIPS 140-3 Level 3 HSMs, centralized key management, automated rotation, quorum approval for signing operations.' }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'si',
+    code: 'SI',
+    name: 'System and Information Integrity',
+    description: 'NIST 800-53 Rev 5 SI family. Detecting and responding to integrity violations in software, data, and build processes.',
+    weight: 0.14,
+    questions: [
+      {
+        id: 'si1',
+        text: 'Does your organization continuously monitor for unauthorized changes to software artifacts, build configurations, and deployed systems?',
+        controls: ['SI-4', 'SI-7', 'NIST 800-218 RV.1'],
+        levels: [
+          { title: 'Ad Hoc', desc: 'No continuous monitoring of software integrity.' },
+          { title: 'Defined', desc: 'Periodic manual integrity checks on critical systems.' },
+          { title: 'Managed', desc: 'Automated file integrity monitoring with alerting on critical systems.' },
+          { title: 'Optimized', desc: 'Real-time integrity monitoring across all software artifacts, correlated with SIEM, automated rollback on unauthorized change.' }
+        ]
+      },
+      {
+        id: 'si2',
+        text: 'Do you scan for and prioritize known exploited vulnerabilities (KEVs) in your software supply chain?',
+        controls: ['SI-2', 'SI-3', 'CISA KEV'],
+        levels: [
+          { title: 'Ad Hoc', desc: 'Vulnerability scanning is inconsistent. No KEV prioritization.' },
+          { title: 'Defined', desc: 'Periodic vulnerability scanning. Remediation SLAs not defined.' },
+          { title: 'Managed', desc: 'Continuous scanning with KEV prioritization and 14-day remediation SLA for critical findings.' },
+          { title: 'Optimized', desc: 'Automated vulnerability discovery across SBOMs, reachability analysis, 72-hour SLA for KEV-listed vulnerabilities.' }
+        ]
+      },
+      {
+        id: 'si3',
+        text: 'Are signed artifacts and provenance records retained in tamper-evident storage for forensic analysis?',
+        controls: ['SI-7', 'AU-10', 'SLSA Build Level 3'],
+        levels: [
+          { title: 'Ad Hoc', desc: 'Build artifacts and logs are ephemeral or stored in editable locations.' },
+          { title: 'Defined', desc: 'Logs retained but not cryptographically protected.' },
+          { title: 'Managed', desc: 'Append-only log storage with retention aligned to contract requirements.' },
+          { title: 'Optimized', desc: 'Tamper-evident logs with cryptographic chain-of-custody, long-term validation, ready for federal incident response disclosure.' }
+        ]
+      },
+      {
+        id: 'si4',
+        text: 'Do you detect malicious code in received software before integration, including closed-source products?',
+        controls: ['SI-3', 'SR-10'],
+        levels: [
+          { title: 'Ad Hoc', desc: 'Received software used as-is. No malware analysis.' },
+          { title: 'Defined', desc: 'Basic antivirus scanning of received software.' },
+          { title: 'Managed', desc: 'Static analysis of received software, dynamic analysis for high-risk products.' },
+          { title: 'Optimized', desc: 'Complex binary analysis of all third-party software, behavioral analysis in sandboxed environments, continuous monitoring after deployment.' }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'ac',
+    code: 'AC',
+    name: 'Access Control & Identification',
+    description: 'NIST 800-53 Rev 5 AC and IA families. Controlling who can access development infrastructure and ensuring strong authentication.',
+    weight: 0.13,
+    questions: [
+      {
+        id: 'ac1',
+        text: 'Is multi-factor authentication enforced for all access to source code, build systems, and artifact registries?',
+        controls: ['AC-2', 'IA-2', 'IA-5'],
+        levels: [
+          { title: 'Ad Hoc', desc: 'Password-only authentication on development infrastructure.' },
+          { title: 'Defined', desc: 'MFA available but not enforced on all systems.' },
+          { title: 'Managed', desc: 'MFA enforced on all development infrastructure.' },
+          { title: 'Optimized', desc: 'Phishing-resistant MFA (FIDO2/WebAuthn, PIV) required for all privileged access, with conditional access policies.' }
+        ]
+      },
+      {
+        id: 'ac2',
+        text: 'Are non-human identities (service accounts, API keys, CI/CD credentials) inventoried and managed?',
+        controls: ['AC-2', 'IA-9'],
+        levels: [
+          { title: 'Ad Hoc', desc: 'Service accounts created ad hoc. No inventory or rotation.' },
+          { title: 'Defined', desc: 'Basic inventory exists. Manual rotation when needed.' },
+          { title: 'Managed', desc: 'Formal NHI lifecycle management with automated rotation.' },
+          { title: 'Optimized', desc: 'Complete NHI visibility with behavioral monitoring, just-in-time credentials, automated anomaly detection.' }
+        ]
+      },
+      {
+        id: 'ac3',
+        text: 'Do you enforce least privilege and separation of duties in the build and release pipeline?',
+        controls: ['AC-5', 'AC-6', 'OWASP CICD-SEC-5'],
+        levels: [
+          { title: 'Ad Hoc', desc: 'Broad access to build infrastructure. No separation between dev and release.' },
+          { title: 'Defined', desc: 'Some role separation exists. Not enforced through tooling.' },
+          { title: 'Managed', desc: 'Enforced separation: different roles for development, build, and release. RBAC in CI/CD.' },
+          { title: 'Optimized', desc: 'Pipeline steps run with minimum required credentials, cryptographically verified approvals for production releases, quorum requirements for sensitive actions.' }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'ir',
+    code: 'IR',
+    name: 'Incident Response & Audit',
+    description: 'NIST 800-53 Rev 5 IR and AU families. Preparing for and responding to software supply chain incidents, meeting federal reporting obligations.',
+    weight: 0.12,
+    questions: [
+      {
+        id: 'ir1',
+        text: 'Does your incident response plan specifically address software supply chain compromise, including federal reporting obligations?',
+        controls: ['IR-1', 'IR-4', 'IR-6', 'DFARS 252.204-7012'],
+        levels: [
+          { title: 'Ad Hoc', desc: 'General IR plan exists. No supply chain scenarios.' },
+          { title: 'Defined', desc: 'Supply chain mentioned in IR plan but not detailed.' },
+          { title: 'Managed', desc: 'Specific supply chain IR playbook covering DFARS 72-hour reporting.' },
+          { title: 'Optimized', desc: 'Tested supply chain IR playbook, automated forensic collection, coordinated disclosure to affected federal customers with pre-approved communications templates.' }
+        ]
+      },
+      {
+        id: 'ir2',
+        text: 'Do you conduct regular incident response exercises that include software supply chain attack scenarios?',
+        controls: ['IR-2', 'IR-3'],
+        levels: [
+          { title: 'Ad Hoc', desc: 'No IR exercises, or exercises do not include supply chain.' },
+          { title: 'Defined', desc: 'Annual tabletop exercises with basic scenarios.' },
+          { title: 'Managed', desc: 'Quarterly tabletop exercises including supply chain compromise scenarios (SolarWinds-style, dependency poisoning).' },
+          { title: 'Optimized', desc: 'Live red team exercises against build pipeline, coordinated with federal customers, with documented lessons learned and remediation tracking.' }
+        ]
+      },
+      {
+        id: 'ir3',
+        text: 'Are audit logs comprehensive enough to reconstruct software supply chain events for federal forensic analysis?',
+        controls: ['AU-2', 'AU-6', 'AU-9', 'AU-11'],
+        levels: [
+          { title: 'Ad Hoc', desc: 'Minimal logging. Build and deployment events not captured.' },
+          { title: 'Defined', desc: 'Logging exists but coverage is incomplete.' },
+          { title: 'Managed', desc: 'Comprehensive logging of all build, sign, and deploy events. Centralized log aggregation.' },
+          { title: 'Optimized', desc: 'Complete audit trail from developer commit to production deploy, tamper-evident storage, automated anomaly detection, retention aligned to federal contract requirements.' }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'ra',
+    code: 'RA+PS',
+    name: 'Risk Assessment & Personnel Security',
+    description: 'NIST 800-53 Rev 5 RA and PS families. Ongoing risk assessment of the software supply chain and managing insider risk.',
+    weight: 0.13,
+    questions: [
+      {
+        id: 'ra1',
+        text: 'Are personnel with access to federal software subject to appropriate background investigation and security clearance where required?',
+        controls: ['PS-3', 'PS-6', 'PS-7'],
+        levels: [
+          { title: 'Ad Hoc', desc: 'Standard employment screening only.' },
+          { title: 'Defined', desc: 'Background checks for some roles. Inconsistent application to contractors.' },
+          { title: 'Managed', desc: 'Background investigations aligned to contract requirements. Periodic reinvestigation.' },
+          { title: 'Optimized', desc: 'Clearance management system integrated with access controls, continuous evaluation, insider threat monitoring program.' }
+        ]
+      },
+      {
+        id: 'ra2',
+        text: 'Do you conduct regular risk assessments covering software supply chain threats specific to defense contracting?',
+        controls: ['RA-3', 'RA-5', 'RA-9'],
+        levels: [
+          { title: 'Ad Hoc', desc: 'No formal risk assessment for software supply chain.' },
+          { title: 'Defined', desc: 'Annual general risk assessment. Supply chain is a minor consideration.' },
+          { title: 'Managed', desc: 'Dedicated supply chain risk assessment annually, covering threats, impact analysis, and control effectiveness.' },
+          { title: 'Optimized', desc: 'Continuous risk assessment with quantitative modeling (FAIR-CSCRM or similar), threat intelligence integration, quarterly reporting to leadership and federal customers where required.' }
+        ]
+      },
+      {
+        id: 'ra3',
+        text: 'Do developers and engineers receive training specifically on software supply chain threats and DoD compliance requirements?',
+        controls: ['AT-2', 'AT-3', 'PS-6'],
+        levels: [
+          { title: 'Ad Hoc', desc: 'General security awareness training only.' },
+          { title: 'Defined', desc: 'Annual training includes some supply chain content.' },
+          { title: 'Managed', desc: 'Role-specific training on NIST 800-218, CMMC requirements, DFARS obligations.' },
+          { title: 'Optimized', desc: 'Continuous training updated with current threats (SolarWinds, XZ, Log4Shell), hands-on labs, certification tracking, effectiveness metrics.' }
+        ]
+      }
+    ]
+  }
+];
+
+const FRAMEWORKS = ['NIST SP 800-53 Rev 5', 'NIST SP 800-218 (SSDF)', 'NIST SP 800-161r1 (C-SCRM)', 'CMMC 2.0', 'DFARS 252.204-7012', 'EO 14028'];
+
+function calcOverall(answers) {
+  let total = 0;
+  let weightSum = 0;
+  DOMAINS.forEach(d => {
+    const scores = d.questions.map(q => answers[q.id]).filter(a => a !== undefined);
+    if (scores.length === d.questions.length) {
+      const avg = scores.reduce((s,a) => s+a, 0) / scores.length;
+      total += (avg / 3) * d.weight * 100;
+      weightSum += d.weight;
+    }
+  });
+  return weightSum > 0 ? Math.round(total / weightSum * weightSum) : 0;
+}
+
+function domainScore(dId, answers) {
+  const d = DOMAINS.find(x => x.id === dId);
+  const scores = d.questions.map(q => answers[q.id]).filter(a => a !== undefined);
+  if (scores.length === 0) return 0;
+  return scores.reduce((s,a) => s+a, 0) / scores.length;
+}
+
+function getLevelLabel(score) {
+  if (score >= 2.5) return 'Optimized';
+  if (score >= 1.5) return 'Managed';
+  if (score >= 0.5) return 'Defined';
+  return 'Ad Hoc';
+}
+
+function IntroScreen({ onStart }) {
+  const totalQuestions = DOMAINS.reduce((s,d) => s + d.questions.length, 0);
+  
+  return (
+    <div className="page-wrap">
+      <div className="intro-card">
+        <div className="intro-tag">NIST 800-53 Rev 5 Alignment</div>
+        <h1 className="intro-title">Defense Sector<br/>Software Supply Chain Maturity Assessment</h1>
+        <p className="intro-sub">Evaluate your organization's readiness against the NIST 800-53 Rev 5 control families most relevant to DoD software supply chain security. Takes about 12 minutes. Results show your maturity level per domain, specific control gaps, and priority remediation actions.</p>
+        
+        <div className="frameworks-bar">
+          <span className="frameworks-label">Aligned with:</span>
+          {FRAMEWORKS.map(f => <span key={f} className="framework-chip">{f}</span>)}
+        </div>
+        
+        <div className="intro-facts">
+          <div>
+            <div className="intro-fact-label">Control Families</div>
+            <div className="intro-fact-value">7</div>
+          </div>
+          <div>
+            <div className="intro-fact-label">Total Questions</div>
+            <div className="intro-fact-value">{totalQuestions}</div>
+          </div>
+          <div>
+            <div className="intro-fact-label">Time to Complete</div>
+            <div className="intro-fact-value">~12 min</div>
+          </div>
+        </div>
+        
+        <button className="btn btn-primary btn-lg" onClick={onStart}>Begin Assessment →</button>
+      </div>
+    </div>
+  );
+}
+
+function AssessmentScreen({ answers, onAnswer, domainIdx, onNext, onBack, onFinish }) {
+  const domain = DOMAINS[domainIdx];
+  const totalQuestions = DOMAINS.reduce((s,d) => s + d.questions.length, 0);
+  const answered = Object.keys(answers).length;
+  const progress = Math.round((answered / totalQuestions) * 100);
+  const currentDomainAnswered = domain.questions.every(q => answers[q.id] !== undefined);
+  const isLast = domainIdx === DOMAINS.length - 1;
+  
+  return (
+    <div>
+      <div className="progress-wrap">
+        <div className="progress-top">
+          <span className="progress-label">Domain {domainIdx + 1} of {DOMAINS.length}: {domain.code}</span>
+          <span className="progress-count">{answered} / {totalQuestions} questions answered ({progress}%)</span>
+        </div>
+        <div className="progress-track">
+          <div className="progress-fill" style={{width: progress + '%'}}/>
+        </div>
+      </div>
+      
+      <div className="page-wrap">
+        <div className="domain-header">
+          <div className="domain-tag">NIST 800-53 Rev 5 · {domain.code} Family</div>
+          <div className="domain-name">{domain.name}</div>
+          <div className="domain-desc">{domain.description}</div>
+        </div>
+        
+        {domain.questions.map((q, qIdx) => (
+          <div key={q.id} className="question-card">
+            <div className="q-num">Question {qIdx + 1} of {domain.questions.length}</div>
+            <div className="q-text">{q.text}</div>
+            <div className="q-controls">
+              {q.controls.map(c => <span key={c} className="control-chip">{c}</span>)}
+            </div>
+            <div>
+              {q.levels.map((lvl, lIdx) => (
+                <div
+                  key={lIdx}
+                  className={`level-opt ${answers[q.id] === lIdx ? 'selected' : ''}`}
+                  onClick={() => onAnswer(q.id, lIdx)}
+                >
+                  <div className={`level-indicator lvl-${lIdx}`}>L{lIdx}</div>
+                  <div className="level-body">
+                    <div className="level-title">{lvl.title}</div>
+                    <div className="level-desc">{lvl.desc}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+        
+        <div className="nav-row">
+          <button className="btn btn-ghost" onClick={onBack} disabled={domainIdx === 0}>← Previous</button>
+          {isLast ? (
+            <button className="btn btn-primary" onClick={onFinish} disabled={!currentDomainAnswered}>View Results →</button>
+          ) : (
+            <button className="btn btn-primary" onClick={onNext} disabled={!currentDomainAnswered}>Next Domain →</button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ResultsScreen({ answers }) {
+  const overall = calcOverall(answers);
+  const overallAvg = (overall / 100) * 3;
+  const level = getLevelLabel(overallAvg);
+  const lvlClass = overallAvg >= 2.5 ? 'lr-3' : overallAvg >= 1.5 ? 'lr-2' : overallAvg >= 0.5 ? 'lr-1' : 'lr-0';
+  
+  const gaps = DOMAINS.filter(d => domainScore(d.id, answers) < 2.0);
+  const strengths = DOMAINS.filter(d => domainScore(d.id, answers) >= 2.0);
+  
+  return (
+    <div className="page-wrap">
+      <div className="results-hero">
+        <div className="results-hero-label">Overall Maturity Score</div>
+        <div className="results-hero-score">{overall}<span style={{fontSize:32,color:'#60a5fa'}}> / 100</span></div>
+        <div className="results-hero-level">Current Level: {level}</div>
+        <div className="results-hero-desc">Based on responses across 7 NIST 800-53 Rev 5 control families. Target for DoD contractors: Level 2 (Managed) minimum across all domains, Level 3 for CMMC Level 2+ certification.</div>
+      </div>
+      
+      <div className="score-grid">
+        <div className="score-card">
+          <div className="score-card-label">Domains Below Target</div>
+          <div className="score-card-value" style={{color: gaps.length > 2 ? '#dc2626' : '#ca8a04'}}>{gaps.length}</div>
+          <div className="score-card-foot">of {DOMAINS.length} control families</div>
+        </div>
+        <div className="score-card">
+          <div className="score-card-label">Strong Domains</div>
+          <div className="score-card-value" style={{color:'#16a34a'}}>{strengths.length}</div>
+          <div className="score-card-foot">At or above Level 2 (Managed)</div>
+        </div>
+        <div className="score-card">
+          <div className="score-card-label">CMMC Readiness</div>
+          <div className="score-card-value" style={{color: overallAvg >= 2.0 ? '#16a34a' : '#dc2626'}}>{overallAvg >= 2.0 ? 'Ready' : 'Gaps'}</div>
+          <div className="score-card-foot">Based on maturity score</div>
+        </div>
+      </div>
+      
+      <div style={{marginTop:32}}>
+        <h2 style={{fontSize:18,fontWeight:700,color:'#0a1628',marginBottom:14,paddingBottom:10,borderBottom:'2px solid #0a1628'}}>Domain Scorecard</h2>
+        
+        {DOMAINS.map(d => {
+          const score = domainScore(d.id, answers);
+          const pct = (score / 3) * 100;
+          const lvlLabel = getLevelLabel(score);
+          const lvlCls = score >= 2.5 ? 'lr-3' : score >= 1.5 ? 'lr-2' : score >= 0.5 ? 'lr-1' : 'lr-0';
+          const barColor = score >= 2.5 ? '#16a34a' : score >= 1.5 ? '#ca8a04' : score >= 0.5 ? '#ea580c' : '#dc2626';
+          
+          const weakQs = d.questions.filter(q => answers[q.id] < 2);
+          
+          return (
+            <div key={d.id} className="domain-result">
+              <div className="domain-result-head">
+                <div>
+                  <div className="domain-result-name">{d.code} · {d.name}</div>
+                  <div style={{fontSize:12,color:'#64748b',marginTop:2}}>Score: {score.toFixed(1)} / 3.0</div>
+                </div>
+                <div className={`domain-result-level ${lvlCls}`}>{lvlLabel}</div>
+              </div>
+              
+              <div className="bar-outer">
+                <div className="bar-inner" style={{width: pct + '%', background: barColor}}/>
+                <div className="bar-target" title="Level 2 Target"/>
+              </div>
+              
+              {weakQs.length > 0 && (
+                <div>
+                  <div style={{fontSize:12,fontWeight:700,color:'#64748b',marginBottom:6,letterSpacing:'0.05em',textTransform:'uppercase'}}>Gaps to close</div>
+                  <ul className="gap-list">
+                    {weakQs.map(q => (
+                      <li key={q.id}>
+                        {q.text} <span style={{color:'#2c5282',fontSize:11,fontWeight:600}}>[{q.controls.join(', ')}]</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+      
+      <div className="cta-box">
+        <div className="cta-title">CodeLocker Addresses These Controls</div>
+        <div className="cta-desc">CodeLocker is built to satisfy NIST 800-53 Rev 5 controls across SR, SA, CM, SI, and AC families. HSM-backed code signing (CM-14, SC-12, SC-13), signed SBOMs (SA-15, SR-11), continuous integrity monitoring (SI-4, SI-7), and complex binary analysis (SI-3, SR-10) map directly to your gap areas.</div>
+        <a href="https://codelocker.zevainc.com/" className="cta-button">Schedule a Defense Briefing</a>
+      </div>
+    </div>
+  );
+}
+
+function App() {
+  const [screen, setScreen] = useState('intro');
+  const [answers, setAnswers] = useState({});
+  const [domainIdx, setDomainIdx] = useState(0);
+  
+  function onAnswer(qId, level) {
+    setAnswers(prev => ({ ...prev, [qId]: level }));
+  }
+  
+  function start() {
+    setDomainIdx(0);
+    setScreen('assessment');
+    window.scrollTo({top: 0, behavior: 'smooth'});
+  }
+  
+  function next() {
+    setDomainIdx(i => i + 1);
+    window.scrollTo({top: 0, behavior: 'smooth'});
+  }
+  
+  function back() {
+    setDomainIdx(i => i - 1);
+    window.scrollTo({top: 0, behavior: 'smooth'});
+  }
+  
+  function finish() {
+    setScreen('results');
+    window.scrollTo({top: 0, behavior: 'smooth'});
+  }
+  
+  function restart() {
+    setAnswers({});
+    setDomainIdx(0);
+    setScreen('intro');
+    window.scrollTo({top: 0, behavior: 'smooth'});
+  }
+  
+  return (
+    <div>
+      <div className="header">
+        <div className="header-brand">
+          <a href="https://codelocker.zevainc.com/" style={{color:'white',fontSize:18,fontWeight:700,textDecoration:'none'}}>CodeLocker</a>
+          <div className="header-tag">Defense Assessment</div>
+        </div>
+        <div style={{display:'flex',gap:10,alignItems:'center'}}>
+          {screen === 'results' && <button className="btn btn-ghost" style={{padding:'6px 14px',fontSize:12,color:'white',borderColor:'rgba(255,255,255,0.3)'}} onClick={restart}>Retake</button>}
+          <a href="aerospace-menu.html" className="back-link">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+            Back to Defense Portal
+          </a>
+        </div>
+      </div>
+      
+      {screen === 'intro' && <IntroScreen onStart={start}/>}
+      {screen === 'assessment' && <AssessmentScreen answers={answers} onAnswer={onAnswer} domainIdx={domainIdx} onNext={next} onBack={back} onFinish={finish}/>}
+      {screen === 'results' && <ResultsScreen answers={answers}/>}
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>

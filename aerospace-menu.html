@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aerospace & Defense - CodeLocker Tools</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { 
+      font-family: 'IBM Plex Sans', sans-serif;
+      background: #f8fafc;
+      min-height: 100vh;
+      margin: 0;
+    }
+    
+    .hero-section {
+      position: relative;
+      height: 85vh;
+      min-height: 600px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .hero-video {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      min-width: 100%;
+      min-height: 100%;
+      width: auto;
+      height: auto;
+      transform: translate(-50%, -50%);
+      object-fit: cover;
+      z-index: 1;
+    }
+    
+    .hero-overlay {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: linear-gradient(180deg, rgba(10,22,40,0.4) 0%, rgba(10,22,40,0.6) 60%, rgba(10,22,40,0.95) 100%);
+      z-index: 2;
+    }
+    
+    .hero-content {
+      position: relative;
+      z-index: 3;
+      text-align: center;
+      color: white;
+      padding: 0 24px;
+      max-width: 1100px;
+    }
+    
+    .tag-line {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.3em;
+      color: #60a5fa;
+      margin-bottom: 20px;
+      text-transform: uppercase;
+    }
+    
+    .hero-title {
+      font-size: clamp(40px, 6vw, 72px);
+      font-weight: 700;
+      line-height: 1.05;
+      margin-bottom: 24px;
+      letter-spacing: -0.02em;
+    }
+    
+    .hero-subtitle {
+      font-size: clamp(16px, 1.5vw, 20px);
+      font-weight: 400;
+      line-height: 1.5;
+      max-width: 720px;
+      margin: 0 auto 40px;
+      color: rgba(255,255,255,0.85);
+    }
+    
+    .back-nav {
+      position: absolute;
+      top: 24px;
+      left: 24px;
+      z-index: 4;
+      color: rgba(255,255,255,0.85);
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      padding: 10px 16px;
+      background: rgba(0,0,0,0.3);
+      backdrop-filter: blur(10px);
+      border-radius: 6px;
+      border: 1px solid rgba(255,255,255,0.15);
+      transition: all 0.2s;
+    }
+    
+    .back-nav:hover {
+      background: rgba(0,0,0,0.5);
+      color: white;
+    }
+    
+    .classification-banner {
+      position: absolute;
+      top: 24px;
+      right: 24px;
+      z-index: 4;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      color: #60a5fa;
+      padding: 8px 14px;
+      border: 1px solid rgba(96,165,250,0.4);
+      border-radius: 4px;
+      background: rgba(10,22,40,0.6);
+      backdrop-filter: blur(10px);
+    }
+    
+    .scroll-indicator {
+      position: absolute;
+      bottom: 32px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 3;
+      color: rgba(255,255,255,0.7);
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      animation: bounce 2s infinite;
+    }
+    
+    @keyframes bounce {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50% { transform: translateX(-50%) translateY(-8px); }
+    }
+    
+    .tools-section {
+      background: white;
+      padding: 80px 24px;
+      position: relative;
+    }
+    
+    .tools-container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .section-header {
+      text-align: center;
+      margin-bottom: 60px;
+    }
+    
+    .section-title {
+      font-size: 36px;
+      font-weight: 700;
+      color: #0a1628;
+      margin-bottom: 12px;
+      letter-spacing: -0.01em;
+    }
+    
+    .section-sub {
+      font-size: 17px;
+      color: #64748b;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    
+    .tool-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 32px;
+    }
+    
+    .tool-card {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 4px;
+      padding: 40px;
+      text-decoration: none;
+      color: inherit;
+      transition: all 0.3s ease;
+      display: block;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .tool-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 4px;
+      height: 0;
+      background: #2c5282;
+      transition: height 0.3s ease;
+    }
+    
+    .tool-card:hover {
+      border-color: #2c5282;
+      box-shadow: 0 12px 32px rgba(10, 22, 40, 0.08);
+      transform: translateY(-2px);
+    }
+    
+    .tool-card:hover::before {
+      height: 100%;
+    }
+    
+    .tool-tag {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      color: #2c5282;
+      margin-bottom: 16px;
+      padding: 4px 10px;
+      background: #eff6ff;
+      border-radius: 3px;
+      text-transform: uppercase;
+    }
+    
+    .tool-title {
+      font-size: 28px;
+      font-weight: 700;
+      color: #0a1628;
+      margin-bottom: 12px;
+      letter-spacing: -0.01em;
+    }
+    
+    .tool-desc {
+      font-size: 15px;
+      color: #475569;
+      line-height: 1.6;
+      margin-bottom: 28px;
+    }
+    
+    .tool-features {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 32px;
+    }
+    
+    .tool-features li {
+      padding: 8px 0;
+      font-size: 14px;
+      color: #334155;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      border-bottom: 1px solid #f1f5f9;
+    }
+    
+    .tool-features li:last-child {
+      border-bottom: none;
+    }
+    
+    .tool-features .marker {
+      color: #2c5282;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    
+    .tool-cta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 20px;
+      border-top: 2px solid #0a1628;
+    }
+    
+    .tool-cta-text {
+      font-size: 14px;
+      font-weight: 700;
+      color: #0a1628;
+      letter-spacing: 0.02em;
+    }
+    
+    .tool-cta-arrow {
+      font-size: 20px;
+      color: #2c5282;
+      transition: transform 0.2s;
+    }
+    
+    .tool-card:hover .tool-cta-arrow {
+      transform: translateX(6px);
+    }
+    
+    .context-bar {
+      background: #0a1628;
+      color: white;
+      padding: 40px 24px;
+      text-align: center;
+    }
+    
+    .context-content {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    
+    .context-title {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.25em;
+      color: #60a5fa;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+    }
+    
+    .context-text {
+      font-size: 16px;
+      line-height: 1.6;
+      color: rgba(255,255,255,0.85);
+    }
+    
+    .footer-section {
+      background: #0a1628;
+      padding: 24px;
+      text-align: center;
+      color: rgba(255,255,255,0.6);
+      font-size: 13px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .footer-section a {
+      color: #60a5fa;
+      text-decoration: none;
+    }
+    
+    .footer-section a:hover {
+      color: #93c5fd;
+    }
+    
+    @media (max-width: 768px) {
+      .tool-grid { grid-template-columns: 1fr; gap: 20px; }
+      .tool-card { padding: 28px; }
+      .hero-section { height: 70vh; min-height: 500px; }
+      .classification-banner { top: auto; bottom: 24px; right: 24px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Hero Section with F-22 Video -->
+  <div class="hero-section">
+    <video class="hero-video" autoplay muted loop playsinline>
+      <source src="f22-hero.mp4" type="video/mp4">
+    </video>
+    <div class="hero-overlay"></div>
+    
+    <a href="index.html" class="back-nav">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      Back to Home
+    </a>
+    
+    <div class="classification-banner">DEFENSE SECTOR</div>
+    
+    <div class="hero-content">
+      <div class="tag-line">Aerospace &amp; Defense Portal</div>
+      <h1 class="hero-title">Mission-Critical<br/>Software Integrity</h1>
+      <p class="hero-subtitle">Supply chain security tools built for contractors working with the Department of Defense. Aligned with NIST 800-53 Rev 5 and NIST 800-218 (SSDF). Designed around the realities of DoD compliance: contract value, FCA exposure, CMMC requirements, and the long tail of reputational risk.</p>
+    </div>
+    
+    <div class="scroll-indicator">Select a Tool ↓</div>
+  </div>
+
+  <!-- Tools Section -->
+  <div class="tools-section">
+    <div class="tools-container">
+      
+      <div class="section-header">
+        <div class="section-title">Defense Sector Tools</div>
+        <p class="section-sub">Two purpose-built tools for DoD software supply chain risk and investment analysis.</p>
+      </div>
+      
+      <div class="tool-grid">
+        
+        <a href="maturity-assessment-aerospace.html" class="tool-card">
+          <div class="tool-tag">Compliance Assessment</div>
+          <h3 class="tool-title">NIST 800-53 Maturity Assessment</h3>
+          <p class="tool-desc">Evaluate your organization's readiness against the control families most relevant to DoD software supply chain security. Results map to specific NIST 800-53 Rev 5 controls and SSDF practices.</p>
+          
+          <ul class="tool-features">
+            <li><span class="marker">▸</span><span>Focused on SR, SA, CM, SI, AC, IR control families</span></li>
+            <li><span class="marker">▸</span><span>NIST 800-218 (SSDF) practice alignment</span></li>
+            <li><span class="marker">▸</span><span>CMMC Level 2 readiness indicators</span></li>
+            <li><span class="marker">▸</span><span>Gap analysis with control-specific remediation</span></li>
+          </ul>
+          
+          <div class="tool-cta">
+            <span class="tool-cta-text">BEGIN ASSESSMENT</span>
+            <span class="tool-cta-arrow">→</span>
+          </div>
+        </a>
+
+        <a href="roi-calculator-aerospace.html" class="tool-card">
+          <div class="tool-tag">Financial Modeling</div>
+          <h3 class="tool-title">Contract Risk ROI Calculator</h3>
+          <p class="tool-desc">Quantify the cost of a supply chain failure on a DoD contract. Models contract value at risk, False Claims Act exposure, CMMC suspension penalties, and lost future contracts from reputational damage.</p>
+          
+          <ul class="tool-features">
+            <li><span class="marker">▸</span><span>Contract value at risk modeling</span></li>
+            <li><span class="marker">▸</span><span>False Claims Act penalties (up to 3x damages)</span></li>
+            <li><span class="marker">▸</span><span>CMMC non-compliance and debarment risk</span></li>
+            <li><span class="marker">▸</span><span>Future pipeline loss from reputational damage</span></li>
+          </ul>
+          
+          <div class="tool-cta">
+            <span class="tool-cta-text">CALCULATE RISK</span>
+            <span class="tool-cta-arrow">→</span>
+          </div>
+        </a>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Context Bar -->
+  <div class="context-bar">
+    <div class="context-content">
+      <div class="context-title">Why Defense Is Different</div>
+      <p class="context-text">Commercial breach costs average $4.91M. A DoD contractor faces that plus contract termination, treble damages under the False Claims Act, suspension from federal procurement, and lost pipeline value that can dwarf the original contract. These tools account for the full picture.</p>
+    </div>
+  </div>
+
+  <div class="footer-section">
+    © 2026 <a href="https://www.zevainc.com/" target="_blank">Zeva Inc.</a> | Columbia MSBA Capstone Project
+  </div>
+
+</body>
+</html>
