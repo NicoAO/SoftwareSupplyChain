@@ -4,97 +4,556 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Commercial Sectors - CodeLocker Tools</title>
-  <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body { 
       font-family: 'IBM Plex Sans', sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      background-attachment: fixed;
-      min-height: 100vh;
+      background: #f8fafc;
+      color: #0f172a;
+      line-height: 1.5;
+      margin: 0;
     }
-    .card-shadow { box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); }
-    .tool-card { transition: transform 0.3s ease, box-shadow 0.3s ease; }
-    .tool-card:hover { transform: translateY(-5px); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2); }
+    a { text-decoration: none; color: inherit; }
+    
+    .hero-section {
+      position: relative;
+      min-height: 85vh;
+      background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 80px 24px;
+    }
+    
+    .grid-overlay {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-image: 
+        linear-gradient(rgba(99, 102, 241, 0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(99, 102, 241, 0.04) 1px, transparent 1px);
+      background-size: 50px 50px;
+      pointer-events: none;
+    }
+    
+    .world-map-container {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 110%;
+      max-width: 1400px;
+      opacity: 0.9;
+      pointer-events: none;
+    }
+    
+    .world-map {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    
+    .world-map circle.dot { fill: rgba(148, 163, 184, 0.3); }
+    .world-map circle.hotspot {
+      fill: #818cf8;
+      filter: drop-shadow(0 0 6px rgba(129, 140, 248, 0.8));
+    }
+    .world-map circle.pulse-ring {
+      fill: none;
+      stroke: #818cf8;
+      stroke-width: 1.5;
+      opacity: 0;
+    }
+    
+    @keyframes pulse-ring {
+      0% { r: 4; opacity: 0.9; }
+      100% { r: 22; opacity: 0; }
+    }
+    
+    @keyframes hotspot-glow {
+      0%, 100% { opacity: 0.8; }
+      50% { opacity: 1; }
+    }
+    
+    .world-map circle.pulse-ring { animation: pulse-ring 2.5s ease-out infinite; }
+    .world-map circle.hotspot { animation: hotspot-glow 2.5s ease-in-out infinite; }
+    
+    .hs-0 { animation-delay: 0s !important; }
+    .hs-1 { animation-delay: 0.3s !important; }
+    .hs-2 { animation-delay: 0.6s !important; }
+    .hs-3 { animation-delay: 0.9s !important; }
+    .hs-4 { animation-delay: 1.2s !important; }
+    .hs-5 { animation-delay: 1.5s !important; }
+    .hs-6 { animation-delay: 1.8s !important; }
+    .hs-7 { animation-delay: 2.1s !important; }
+    .hs-8 { animation-delay: 0.4s !important; }
+    .hs-9 { animation-delay: 1.0s !important; }
+    
+    .hero-vignette {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: radial-gradient(ellipse at center, transparent 0%, rgba(15, 23, 42, 0.6) 70%, rgba(15, 23, 42, 0.9) 100%);
+      pointer-events: none;
+    }
+    
+    .hero-content {
+      position: relative;
+      z-index: 3;
+      text-align: center;
+      color: white;
+      max-width: 900px;
+    }
+    
+    .tag-line {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.3em;
+      color: #818cf8;
+      margin-bottom: 20px;
+      text-transform: uppercase;
+    }
+    
+    .hero-title {
+      font-size: clamp(40px, 6vw, 68px);
+      font-weight: 700;
+      line-height: 1.05;
+      margin-bottom: 24px;
+      letter-spacing: -0.02em;
+    }
+    
+    .hero-subtitle {
+      font-size: clamp(15px, 1.4vw, 18px);
+      font-weight: 400;
+      line-height: 1.6;
+      max-width: 680px;
+      margin: 0 auto;
+      color: rgba(255,255,255,0.85);
+    }
+    
+    .hero-stats {
+      display: flex;
+      justify-content: center;
+      gap: 48px;
+      margin-top: 48px;
+      flex-wrap: wrap;
+    }
+    
+    .stat { text-align: center; }
+    
+    .stat-value {
+      font-size: 28px;
+      font-weight: 700;
+      color: white;
+      letter-spacing: -0.02em;
+    }
+    
+    .stat-label {
+      font-size: 11px;
+      color: rgba(255,255,255,0.6);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+    
+    .back-nav {
+      position: absolute;
+      top: 24px;
+      left: 24px;
+      z-index: 10;
+      color: rgba(255,255,255,0.85);
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(10px);
+      border-radius: 6px;
+      border: 1px solid rgba(255,255,255,0.1);
+      transition: all 0.2s;
+    }
+    
+    .back-nav:hover {
+      background: rgba(15, 23, 42, 0.8);
+      color: white;
+      border-color: rgba(129, 140, 248, 0.4);
+    }
+    
+    .portal-banner {
+      position: absolute;
+      top: 24px;
+      right: 24px;
+      z-index: 10;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      color: #818cf8;
+      padding: 8px 14px;
+      border: 1px solid rgba(129, 140, 248, 0.4);
+      border-radius: 4px;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(10px);
+    }
+    
+    .scroll-indicator {
+      position: absolute;
+      bottom: 32px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 3;
+      color: rgba(255,255,255,0.7);
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      animation: bounce 2s infinite;
+    }
+    
+    @keyframes bounce {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50% { transform: translateX(-50%) translateY(-8px); }
+    }
+    
+    .tools-section {
+      background: white;
+      padding: 80px 24px;
+    }
+    
+    .tools-container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .section-header {
+      text-align: center;
+      margin-bottom: 60px;
+    }
+    
+    .section-tag {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.25em;
+      color: #6366f1;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+    }
+    
+    .section-title {
+      font-size: 36px;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 12px;
+      letter-spacing: -0.01em;
+    }
+    
+    .section-sub {
+      font-size: 17px;
+      color: #64748b;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    
+    .tool-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 32px;
+    }
+    
+    .tool-card {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 4px;
+      padding: 40px;
+      transition: all 0.3s ease;
+      display: block;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .tool-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 4px;
+      height: 0;
+      background: #6366f1;
+      transition: height 0.3s ease;
+    }
+    
+    .tool-card:hover {
+      border-color: #6366f1;
+      box-shadow: 0 12px 32px rgba(15, 23, 42, 0.08);
+      transform: translateY(-2px);
+    }
+    
+    .tool-card:hover::before { height: 100%; }
+    
+    .tool-tag {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      color: #6366f1;
+      margin-bottom: 16px;
+      padding: 4px 10px;
+      background: #eef2ff;
+      border-radius: 3px;
+      text-transform: uppercase;
+    }
+    
+    .tool-title {
+      font-size: 28px;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 12px;
+      letter-spacing: -0.01em;
+    }
+    
+    .tool-desc {
+      font-size: 15px;
+      color: #475569;
+      line-height: 1.6;
+      margin-bottom: 28px;
+    }
+    
+    .tool-features {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 32px;
+    }
+    
+    .tool-features li {
+      padding: 8px 0;
+      font-size: 14px;
+      color: #334155;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      border-bottom: 1px solid #f1f5f9;
+    }
+    
+    .tool-features li:last-child { border-bottom: none; }
+    
+    .tool-features .marker {
+      color: #6366f1;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    
+    .tool-cta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 20px;
+      border-top: 2px solid #0f172a;
+    }
+    
+    .tool-cta-text {
+      font-size: 14px;
+      font-weight: 700;
+      color: #0f172a;
+      letter-spacing: 0.02em;
+    }
+    
+    .tool-cta-arrow {
+      font-size: 20px;
+      color: #6366f1;
+      transition: transform 0.2s;
+    }
+    
+    .tool-card:hover .tool-cta-arrow { transform: translateX(6px); }
+    
+    .footer-section {
+      background: #0f172a;
+      padding: 28px 24px;
+      text-align: center;
+      color: rgba(255,255,255,0.6);
+      font-size: 13px;
+    }
+    
+    .footer-section a { color: #818cf8; }
+    .footer-section a:hover { color: #a5b4fc; }
+    
+    @media (max-width: 768px) {
+      .tool-grid { grid-template-columns: 1fr; gap: 20px; }
+      .tool-card { padding: 28px; }
+      .hero-section { min-height: 75vh; }
+      .hero-stats { gap: 24px; }
+      .stat-value { font-size: 22px; }
+      .portal-banner { top: auto; bottom: 80px; right: 24px; }
+    }
   </style>
 </head>
 <body>
-  <div class="min-h-screen px-6 py-12">
-    <div class="max-w-6xl mx-auto">
-      
-      <!-- Back link -->
-      <div class="mb-8">
-        <a href="index.html" class="text-white opacity-80 hover:opacity-100 text-sm flex items-center gap-2">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
-          Back to Home
-        </a>
-      </div>
 
-      <!-- Header -->
-      <div class="text-center mb-12">
-        <div class="text-sm font-semibold text-white opacity-80 tracking-widest mb-3">COMMERCIAL SECTORS</div>
-        <h1 class="text-5xl font-bold text-white mb-4">Pick a Tool</h1>
-        <p class="text-xl text-white opacity-90">Assess your current posture or calculate the return on a CodeLocker investment.</p>
-      </div>
-
-      <!-- Tool Cards -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-        
-        <a href="maturity-assessment.html" class="tool-card bg-white rounded-xl p-8 card-shadow block">
-          <div class="flex items-center justify-between mb-6">
-            <div class="w-16 h-16 bg-gradient-to-br from-purple-600 to-blue-600 rounded-lg flex items-center justify-center">
-              <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-              </svg>
-            </div>
-          </div>
-          
-          <h2 class="text-2xl font-bold text-gray-900 mb-3">Maturity Assessment</h2>
-          <p class="text-gray-600 mb-4">Self-assessment tool across 8 domains of software supply chain security. Maps your gaps to specific frameworks and gives you a dollar-denominated risk exposure based on IBM 2025 data.</p>
-          
-          <div class="space-y-2 text-sm text-gray-700 mb-6">
-            <div class="flex items-center gap-2"><span class="text-green-600">✓</span><span>36 questions across 8 domains</span></div>
-            <div class="flex items-center gap-2"><span class="text-green-600">✓</span><span>Maturity scoring (Levels 0-3) by domain</span></div>
-            <div class="flex items-center gap-2"><span class="text-green-600">✓</span><span>Framework references: NIST SSDF, SLSA, OWASP, SAFECode</span></div>
-            <div class="flex items-center gap-2"><span class="text-green-600">✓</span><span>Risk exposure in dollars, not vague warnings</span></div>
-          </div>
-          
-          <div class="flex items-center justify-between">
-            <span class="text-purple-600 font-semibold">Start Assessment →</span>
-          </div>
-        </a>
-
-        <a href="roi-calculator.html" class="tool-card bg-white rounded-xl p-8 card-shadow block">
-          <div class="flex items-center justify-between mb-6">
-            <div class="w-16 h-16 bg-gradient-to-br from-green-600 to-teal-600 rounded-lg flex items-center justify-center">
-              <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-              </svg>
-            </div>
-          </div>
-          
-          <h2 class="text-2xl font-bold text-gray-900 mb-3">ROI Calculator</h2>
-          <p class="text-gray-600 mb-4">Calculate your personalized return on CodeLocker based on real breach cost data from IBM, Verizon, Coalition, and CISA. Adjusts for your industry, region, size, and regulatory exposure.</p>
-          
-          <div class="space-y-2 text-sm text-gray-700 mb-6">
-            <div class="flex items-center gap-2"><span class="text-green-600">✓</span><span>Multi-year projection up to 10 years</span></div>
-            <div class="flex items-center gap-2"><span class="text-green-600">✓</span><span>Industry and regional cost multipliers</span></div>
-            <div class="flex items-center gap-2"><span class="text-green-600">✓</span><span>Regulatory fines: GDPR, CCPA, HIPAA, PCI-DSS</span></div>
-            <div class="flex items-center gap-2"><span class="text-green-600">✓</span><span>Growth scenarios with custom hiring plans</span></div>
-          </div>
-          
-          <div class="flex items-center justify-between">
-            <span class="text-green-600 font-semibold">Calculate ROI →</span>
-          </div>
-        </a>
-
-      </div>
-
-      <div class="text-center">
-        <p class="text-white text-sm opacity-75">© 2026 <a href="https://www.zevainc.com/" target="_blank" class="hover:opacity-100 transition-opacity underline">Zeva Inc.</a> | Columbia MSBA Capstone Project</p>
-      </div>
-
+  <section class="hero-section">
+    <a href="index.html" class="back-nav">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      Back to Home
+    </a>
+    
+    <div class="portal-banner">COMMERCIAL SECTORS</div>
+    
+    <div class="grid-overlay"></div>
+    
+    <div class="world-map-container">
+      <svg class="world-map" viewBox="0 0 600 220" id="worldMap" xmlns="http://www.w3.org/2000/svg"></svg>
     </div>
+    
+    <div class="hero-vignette"></div>
+    
+    <div class="hero-content">
+      <div class="tag-line">Commercial Sectors Portal</div>
+      <h1 class="hero-title">Help prevent<br/>Supply Chain Breaches</h1>
+      <p class="hero-subtitle">Software supply chain security tools for fintech, healthcare, retail, manufacturing, and technology companies. Built around real breach data from IBM 2025, Verizon DBIR, Coalition Claims, and CISA.</p>
+      
+      <div class="hero-stats">
+        <div class="stat">
+          <div class="stat-value">$4.91M</div>
+          <div class="stat-label">Avg Supply Chain Breach</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value">30%</div>
+          <div class="stat-label">Breaches Involve 3rd Parties</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value">73%</div>
+          <div class="stat-label">Rise in Malicious Packages</div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="scroll-indicator">Select a Tool ↓</div>
+  </section>
+
+  <section class="tools-section">
+    <div class="tools-container">
+      
+      <div class="section-header">
+        <div class="section-tag">Commercial Sector Tools</div>
+        <h2 class="section-title">Assess your posture. Calculate the cost.</h2>
+        <p class="section-sub">Two tools built around real breach cost data. Know where you stand today and what it will cost if nothing changes.</p>
+      </div>
+      
+      <div class="tool-grid">
+        
+        <a href="maturity-assessment.html" class="tool-card">
+          <div class="tool-tag">Assessment</div>
+          <h3 class="tool-title">Supply Chain Maturity Assessment</h3>
+          <p class="tool-desc">Evaluate your organization across 8 domains of software supply chain security. Get scored by domain, with gaps mapped to specific framework controls and converted into dollar-denominated risk exposure.</p>
+          
+          <ul class="tool-features">
+            <li><span class="marker">▸</span><span>36 questions across 8 domains</span></li>
+            <li><span class="marker">▸</span><span>Maturity scoring (Levels 0-3) per domain</span></li>
+            <li><span class="marker">▸</span><span>NIST SSDF, SLSA, OWASP, SAFECode aligned</span></li>
+            <li><span class="marker">▸</span><span>Risk exposure in dollars, not vague warnings</span></li>
+          </ul>
+          
+          <div class="tool-cta">
+            <span class="tool-cta-text">BEGIN ASSESSMENT</span>
+            <span class="tool-cta-arrow">→</span>
+          </div>
+        </a>
+
+        <a href="roi-calculator.html" class="tool-card">
+          <div class="tool-tag">Financial Modeling</div>
+          <h3 class="tool-title">Commercial ROI Calculator</h3>
+          <p class="tool-desc">Calculate your personalized return on CodeLocker using breach data from IBM, Verizon, Coalition, and CISA. Adjusts for your industry, region, size, and regulatory exposure.</p>
+          
+          <ul class="tool-features">
+            <li><span class="marker">▸</span><span>Multi-year projection up to 10 years</span></li>
+            <li><span class="marker">▸</span><span>Industry and regional cost multipliers</span></li>
+            <li><span class="marker">▸</span><span>GDPR, CCPA, HIPAA, PCI-DSS fine modeling</span></li>
+            <li><span class="marker">▸</span><span>Growth scenarios with custom hiring</span></li>
+          </ul>
+          
+          <div class="tool-cta">
+            <span class="tool-cta-text">CALCULATE ROI</span>
+            <span class="tool-cta-arrow">→</span>
+          </div>
+        </a>
+
+      </div>
+    </div>
+  </section>
+
+  <div class="footer-section">
+    © 2026 <a href="https://www.zevainc.com/" target="_blank">Zeva Inc.</a> | Columbia MSBA Capstone Project
   </div>
+
+  <script>
+    const WORLD_BITMAP = [
+      "000000000000000000000000000000000000000000000000000000000000",
+      "000000111110000000000001110011111111111100000000000000000000",
+      "000001111111100000000011111111111111111110000000000000000000",
+      "000011111111100000000111111111111111111110000000000000000000",
+      "000011111111100000000111111111111111111100000000000000000000",
+      "000011111111000000000111111111111111111000000000011000000000",
+      "000011111111000000000011111111001111111000000000011000000000",
+      "000001111110000000000011111111000111110000000000011000000000",
+      "000000111100000000000001111111000111110000000000000000000000",
+      "000000011100000000000001111110000011100000000000000000000000",
+      "000000011110000000000000111110000011100000000000000000000000",
+      "000000011110000000000000111100000001100000000000000000000000",
+      "000000011110000000000000111100000000100000000000000000000000",
+      "000000111110000000000000011110000000010000000000000000000000",
+      "000000111110000000000000011100000000011000000111100000000000",
+      "000000111100000000000000001100000000000000001111110000000000",
+      "000000011100000000000000001100000000000000001111110000000000",
+      "000000011100000000000000000100000000000000000111100000000000",
+      "000000001100000000000000000000000000000000000001000000000000",
+      "000000000100000000000000000000000000000000000001000000000000"
+    ];
+    
+    const HOTSPOTS = [
+      { col: 11, row: 6 },   // San Francisco
+      { col: 19, row: 5 },   // New York
+      { col: 22, row: 14 },  // Sao Paulo
+      { col: 29, row: 4 },   // London
+      { col: 31, row: 5 },   // Frankfurt
+      { col: 35, row: 7 },   // Tel Aviv
+      { col: 42, row: 8 },   // Mumbai
+      { col: 46, row: 12 },  // Singapore
+      { col: 52, row: 6 },   // Tokyo
+      { col: 54, row: 16 },  // Sydney
+    ];
+    
+    const svg = document.getElementById('worldMap');
+    const CELL = 10;
+    const XMLNS = 'http://www.w3.org/2000/svg';
+    
+    WORLD_BITMAP.forEach((row, y) => {
+      for (let x = 0; x < row.length; x++) {
+        if (row[x] === '1') {
+          const circle = document.createElementNS(XMLNS, 'circle');
+          circle.setAttribute('cx', x * CELL + CELL/2);
+          circle.setAttribute('cy', y * CELL + CELL/2);
+          circle.setAttribute('r', 1.8);
+          circle.setAttribute('class', 'dot');
+          svg.appendChild(circle);
+        }
+      }
+    });
+    
+    HOTSPOTS.forEach((spot, i) => {
+      const cx = spot.col * CELL + CELL/2;
+      const cy = spot.row * CELL + CELL/2;
+      
+      const ring = document.createElementNS(XMLNS, 'circle');
+      ring.setAttribute('cx', cx);
+      ring.setAttribute('cy', cy);
+      ring.setAttribute('r', 4);
+      ring.setAttribute('class', `pulse-ring hs-${i}`);
+      svg.appendChild(ring);
+      
+      const hotspot = document.createElementNS(XMLNS, 'circle');
+      hotspot.setAttribute('cx', cx);
+      hotspot.setAttribute('cy', cy);
+      hotspot.setAttribute('r', 3);
+      hotspot.setAttribute('class', `hotspot hs-${i}`);
+      svg.appendChild(hotspot);
+    });
+  </script>
+
 </body>
 </html>
